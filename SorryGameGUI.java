@@ -159,28 +159,28 @@ class GamePanel extends JPanel
         
         //start areas/where the pawns begin
         //red starts bottom right ---NEEDS WORK
-        startAreas[0][0] = new Point(680,680);
-        startAreas[0][1] = new Point(730, 680);
-        startAreas[0][2] = new Point(680,730);
-        startAreas[0][3] = new Point(730,730);
+         startAreas[0][0] = new Point(550,670);
+        startAreas[0][1] = new Point(580, 670);
+        startAreas[0][2] = new Point(550,700);
+        startAreas[0][3] = new Point(580,700);
         
         //blue start bottom left ---NEEDS WORK
-        startAreas[1][0] = new Point(70,680);
-        startAreas[1][1]= new Point(120,680);
-        startAreas[1][2]= new Point(70,730);
-        startAreas[1][3] = new Point(120, 730);
+        startAreas[1][0] = new Point(100,550);
+        startAreas[1][1]= new Point(130,550);
+        startAreas[1][2]= new Point(100,580);
+        startAreas[1][3] = new Point(130, 580);
         
         //yellow start top left --NEEDS WORK
-        startAreas[2][0]= new Point(70,70);
-        startAreas[2][1]= new Point(120, 70);
-        startAreas[2][2]= new Point(70,120);
-        startAreas[2][3] = new Point(120, 120);
+        startAreas[2][0]= new Point(250,95);
+        startAreas[2][1]= new Point(220, 95);
+        startAreas[2][2]= new Point(250,130);
+        startAreas[2][3] = new Point(220, 130);
         
         //green start top right --NEEDS WORK
-        startAreas[3][0] = new Point(680,70);
-        startAreas[3][1] = new Point(730,70);
-        startAreas[3][2] = new Point(680,120);
-        startAreas[3][3] =new Point(730,120);
+        startAreas[3][0] = new Point(670,215);
+        startAreas[3][1] = new Point(670,245);
+        startAreas[3][2] = new Point(695,215);
+        startAreas[3][3] =new Point(695,245);
     }
     
     //check if user clicked on a pawn and select it
