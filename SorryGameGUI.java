@@ -1,0 +1,541 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import javax.imageio.ImageIO;
+import java.io.File;
+import java.util.*;
+
+public class SorryGameGUI extends JFrame 
+{
+    private GamePanel gamePanel;
+    private ControlPanel controlPanel;
+    private Game game;
+    
+    public SorryGameGUI() 
+    {
+        setTitle("Sorry!");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+        
+        //start new game with 4 players
+        game = new Game(4);
+        
+        //we gonna set up two main panels. The first one is the board on the left. the second one is the controls on the right
+        gamePanel= new GamePanel(game);
+        controlPanel = new ControlPanel(game, gamePanel);
+        
+        add(gamePanel, BorderLayout.CENTER);
+        add(controlPanel, BorderLayout.EAST);
+        
+        pack(); //size windwo to fit everything
+        setLocationRelativeTo(null);    //center on screen
+        setVisible(true);
+    }
+    
+    public static void main(String [] args) 
+    {
+        SwingUtilities.invokeLater(()->new SorryGameGUI());
+    }
+}
+
+
+//this will draw the game board and handle pawn selection
+class GamePanel extends JPanel 
+{
+    private Game game;
+    private BufferedImage boardImage;   //board picture
+    private static int  boardSize = 800;
+    private static int pawnSize  = 20;
+    
+    //store positions for all spaces on the board
+    private Point[] outerPath;  //60 spaces sorrounding the board
+    private Point[][] homePath; //PLayers safe zone that is 6 spaces
+    private Point[][] startAreas;   //pawn starting point
+    
+    //this will map each player color t oactual RGB color valus
+    private static final Map<Player.Color, Color> colors = new HashMap<>();
+    static 
+    {
+        colors.put(Player.Color.RED, new Color(200, 50, 30));      // Red
+        colors.put(Player.Color.BLUE, new Color(60, 130, 220));    // Blue
+        colors.put(Player.Color.YELLOW, new Color(255, 215, 0));   // Yellow
+        colors.put(Player.Color.GREEN, new Color(80, 180, 100));   // Green
+    }
+    
+    private Pawn selectedPawn = null;   //currently selected pawn
+    
+    public GamePanel(Game game) 
+    {
+        this.game = game;
+        setPreferredSize(new Dimension(boardSize, boardSize)); //set panel size (w, h)
+        setBackground(Color.WHITE);
+        
+        loadBoardImage();
+        setupBoardPos();
+
+        //listens for mouse clicks to select pawns
+        addMouseListener(new MouseAdapter() 
+        {
+            public void mouseClicked(MouseEvent e) 
+            {
+                PawnClick(e.getPoint());
+            }
+        });
+    }
+    
+    //load board image TODO: MAybe get rid of and just load
+    private void loadBoardImage() 
+    {
+        try 
+        {
+            boardImage = ImageIO.read(new File("sorry-board-game_268612.jpg"));
+            System.out.println("Board image loaded");
+        } 
+        catch (Exception e)
+        {
+            System.out.println("ERROR:couldnt find sorry-board-game_268612.jpg");
+        }
+    }
+    
+    //set up corrds for all spaces on board
+    private void setupBoardPos() 
+    {
+        outerPath = new Point[60];
+        homePath = new Point[4][6];
+        startAreas = new Point[4][4];
+        
+        //the outer path (60 spaces around the board)
+        
+        //bottom edge -> 0-14. Red's side
+        for (int i = 0; i<=14; i++) 
+        {
+            outerPath[i] = new Point(50 + i* 50, 750);
+        }
+        
+        //right edge->15-29 going up
+        for (int i = 15; i <= 29;i++) 
+        {
+            outerPath[i] = new Point(750, 750- (i- 14) * 50);
+        }
+        
+        //top edge->30-44. Yellow side going left
+        for (int i = 30; i<= 44; i++) 
+        {
+            outerPath[i] = new Point(750 -(i -29) * 50, 50);
+        }
+        
+        //left edge ->45-59 going down
+        for (int i =45; i<= 59; i++) 
+        {
+            outerPath[i] = new Point(50,50 + (i-44) * 50);
+        }
+        
+        //home paths -> the safe spaces leading to home (6 spaces)
+
+        //reds home path horizontal going right
+        for (int i = 0;i <6; i++) 
+        {
+            homePath[0][i] = new Point(150 + i * 40, 650);
+        }
+        
+        //blues home path, start at 17 and go up
+        for (int i = 0; i < 6; i++) 
+        {
+            homePath[1][i] = new Point(650, 600- i* 40);
+        }
+        
+        //yellows home path horizontal going left
+        for (int i = 0; i < 6; i++) 
+        {
+            homePath[2][i] =new Point(650 - i* 40, 150);
+        }
+        
+        //greens home path start and 47 go down
+        for (int i= 0; i < 6; i++) 
+        {
+            homePath[3][i] = new Point(150, 150+ i * 40);
+        }
+        
+        //start areas/where the pawns begin
+        //red starts bottom right ---NEEDS WORK
+        startAreas[0][0] = new Point(680,680);
+        startAreas[0][1] = new Point(730, 680);
+        startAreas[0][2] = new Point(680,730);
+        startAreas[0][3] = new Point(730,730);
+        
+        //blue start bottom left ---NEEDS WORK
+        startAreas[1][0] = new Point(70,680);
+        startAreas[1][1]= new Point(120,680);
+        startAreas[1][2]= new Point(70,730);
+        startAreas[1][3] = new Point(120, 730);
+        
+        //yellow start top left --NEEDS WORK
+        startAreas[2][0]= new Point(70,70);
+        startAreas[2][1]= new Point(120, 70);
+        startAreas[2][2]= new Point(70,120);
+        startAreas[2][3] = new Point(120, 120);
+        
+        //green start top right --NEEDS WORK
+        startAreas[3][0] = new Point(680,70);
+        startAreas[3][1] = new Point(730,70);
+        startAreas[3][2] = new Point(680,120);
+        startAreas[3][3] =new Point(730,120);
+    }
+    
+    //check if user clicked on a pawn and select it
+    private void PawnClick(Point click) 
+    {
+        //check each player's pawnsd
+        for (Player player : game.getPlayers()) 
+        {
+            for (Pawn pawn : player.getPawns()) //loops through each player's 4 pawns
+            {
+                Point pawnPos= getPawnPos(pawn);
+                if (pawnPos !=null) 
+                {
+                    //calc distance between click and pawn center
+                    double distance = click.distance(pawnPos); //distance uses the pythag theorem
+                    //if click is within pawn rad
+                    if (distance <pawnSize) 
+                    {
+                        selectedPawn = pawn;
+                        game.setSelectedPawn(pawn);
+                        repaint();  //redrew to show selection
+                        return;
+                    }
+                }
+            }
+        }
+    }
+    
+    //find out where to draw pawn
+    private Point getPawnPos(Pawn pawn) 
+    {
+        switch (pawn.getState()) //checks what state pawn is in
+        {
+            case START: //pawn is in start area
+                int playerId = pawn.getOwner().getId(); //gets which player owns this pawn
+                Pawn[] pawns =pawn.getOwner().getPawns();  //gets all 4 pawns for this player
+                for (int i =0; i< pawns.length; i++)  //find out which pawn it is 
+                {
+                    if (pawns[i] == pawn) 
+                    {
+                        return startAreas[playerId][i];
+                    }
+                }
+                break;
+            case MAIN:  //pawn is in main outer path. return its pos in the outer path arr
+                return outerPath[pawn.getIndex()];
+            case HOME:  //pawn is in home path
+                return homePath[pawn.getOwner().getId()][pawn.getIndex()];  //homePath is [playerid][pos in home path]
+            case FINISHED:  //pawn made it back home
+                return homePath[pawn.getOwner().getId()][5];
+        }
+        return null;
+    }
+    
+    //draws everything
+    protected void paintComponent(Graphics g) 
+    {
+        super.paintComponent(g);
+        Graphics2D g2 = (Graphics2D) g;       
+        
+        //draw board image
+        if (boardImage != null) 
+        {
+            g2.drawImage(boardImage, 0, 0, boardSize, boardSize, null);
+        } 
+        
+        //draw pawns on top
+        drawPawns(g2);
+
+        //show whose turn it is
+        showCurrPlayer(g2);
+    }
+      
+    //draw pawns on da board
+    private void drawPawns(Graphics2D g2) 
+    {
+        for (Player player : game.getPlayers()) //loop through each player
+        {
+            Color color =colors.get(player.getColor()); //get this player's color
+            
+            for (Pawn pawn : player.getPawns()) //draw each of this players pawns
+            {
+                Point pos = getPawnPos(pawn);
+                if (pos != null) 
+                {
+                    //draw shadow so it is easier to identify
+                    g2.setColor(color.darker());
+                    g2.fillOval(pos.x - pawnSize/2 +2, pos.y- pawnSize/2 +2, pawnSize, pawnSize);
+                    
+                    //draw pawn bod
+                    g2.setColor(color);
+                    g2.fillOval(pos.x - pawnSize/2, pos.y - pawnSize/2, pawnSize, pawnSize);
+
+                    //add highlight gives a 3d effect
+                    g2.setColor(color.brighter());
+                    g2.fillOval(pos.x- pawnSize/2 + 3,pos.y -pawnSize/2 + 3, pawnSize/3, pawnSize/3);
+                    
+                    //draw border. yellow if pawn is selected, black if not selected
+                    if (pawn == selectedPawn) 
+                    {
+                        g2.setColor(Color.YELLOW);
+                        g2.setStroke(new BasicStroke(3));   //thick line
+                    } 
+                    else 
+                    {
+                        g2.setColor(Color.BLACK);
+                        g2.setStroke(new BasicStroke(2));   //normie line
+                    }
+                    g2.drawOval(pos.x -pawnSize/2, pos.y - pawnSize/2, pawnSize,pawnSize);
+                    g2.setStroke(new BasicStroke(1)); //reset line thickness
+                }
+            }
+        }
+    }
+    
+    //show whose turn it is in corner 
+    private void showCurrPlayer(Graphics2D g2)
+    {
+        Player curr = game.getCurrentPlayer();
+        Color color = colors.get(curr.getColor());
+
+        //draw colored rectangle
+        g2.setColor(color);
+        g2.fillRoundRect(10, 10, 180, 45,10,10);
+
+        //draw border
+        g2.setColor(Color.BLACK);
+        g2.drawRoundRect(10, 10, 180, 45, 10, 10);
+
+        //draw text
+        g2.setColor(Color.WHITE);
+        g2.setFont(new Font("Arial", Font.BOLD, 17));
+        g2.drawString("Current: "+ curr.getColor(), 20, 38);
+
+    }
+    
+    //refresh display
+    public void refresh() 
+    {
+        repaint();
+    }
+    
+
+    //update selected pawn
+    public void setSelectedPawn(Pawn pawn) 
+    {
+        this.selectedPawn = pawn;
+        repaint();
+    }
+}
+
+//control paenl on right side w/ btns and game log
+class ControlPanel extends JPanel 
+{
+    private Game game;
+    private GamePanel gamePanel;
+    private JButton drawCardBtn;
+    private JButton movePawnBtn;
+    private JButton endTurnBtn;
+    private JTextArea log;
+    private JLabel currCardLabel;
+    
+
+    //panel with buttons and game log on right side  
+    public ControlPanel(Game game, GamePanel gamePanel) 
+    {
+        this.game = game;
+        this.gamePanel = gamePanel;
+        
+        setPreferredSize(new Dimension(280, 800));  //set size (w,h)
+        setBackground(new Color(240, 240, 245));
+
+
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));   //boxlayout to stack things vertically
+        
+        setupControls();
+    }
+    
+    //set up all buttons and display area
+    private void setupControls() 
+    {
+        //title at top
+        JLabel title = new JLabel("Game Controls");
+        title.setFont(new Font("Arial", Font.BOLD, 22));
+        title.setAlignmentX(Component.CENTER_ALIGNMENT);    //centers horizontally
+        add(title);
+        add(Box.createVerticalStrut(20));   //for spacing 
+        
+        //card display box
+        JPanel cardBox = new JPanel();
+        //cardBox.setLayout(new BorderLayout());
+        cardBox.setMaximumSize(new Dimension(250, 120));
+        cardBox.setBackground(Color.WHITE);
+        
+        currCardLabel = new JLabel("Draw a card");
+        currCardLabel.setFont(new Font("Arial", Font.BOLD, 42));
+        //currCardLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        cardBox.add(currCardLabel);
+        add(cardBox);
+        add(Box.createVerticalStrut(20));   //for spacing
+        
+        //draw card button
+        drawCardBtn =makeButton("Draw Card", new Color(70, 130, 180));
+        drawCardBtn.addActionListener(e -> drawCard());
+        add(drawCardBtn);
+        add(Box.createVerticalStrut(10));   //for spacing
+        
+        // Move Pawn button
+        movePawnBtn = makeButton("Move Pawn", new Color(60, 179, 113));
+        movePawnBtn.setEnabled(false);
+        movePawnBtn.addActionListener(e -> movePawn());
+        add(movePawnBtn);
+        add(Box.createVerticalStrut(10));   //for spacing
+        
+        //end turn btn. disabled until move is made
+        endTurnBtn = makeButton("End Turn", new Color(220, 100, 70));
+        endTurnBtn.setEnabled(false);
+        endTurnBtn.addActionListener(e ->endTurn());
+        add(endTurnBtn);
+        add(Box.createVerticalStrut(20));   //for spacing
+        
+        //game log
+        log =new JTextArea();
+        log.setEditable(false);
+        log.setLineWrap(true);
+        log.setWrapStyleWord(true);
+        log.setFont(new Font("Monospaced", Font.PLAIN, 12));
+
+        JScrollPane scroll = new JScrollPane(log);
+        scroll.setPreferredSize(new Dimension(250, 450));
+        add(scroll);
+        
+        //start messages 
+        log.append("SORRY! Game Started\n");
+        log.append("Red's turn.\n");
+    }
+    
+    //create stylish button
+    private JButton makeButton(String text, Color color) 
+    {
+        JButton btn = new JButton(text);
+        btn.setAlignmentX(Component.CENTER_ALIGNMENT);
+        btn.setMaximumSize(new Dimension(250, 45));
+        btn.setFont(new Font("Arial", Font.BOLD, 16));
+        btn.setBackground(color);
+        btn.setForeground(Color.WHITE);
+        btn.setFocusPainted(false);
+        
+        //little tiny hover effect
+        btn.addMouseListener(new MouseAdapter() 
+        {
+            public void mouseEntered(MouseEvent e) 
+            {
+                if (btn.isEnabled()) 
+                {
+                    btn.setBackground(color.brighter());
+                }
+            }
+            public void mouseExited(MouseEvent e) 
+            {
+                btn.setBackground(color);
+            }
+        });
+        
+        return btn;
+    }
+    
+    //handles draw card button click
+    private void drawCard() 
+    {
+        int val = game.drawCard();
+        String text;
+        if (val == 0)
+        { 
+            text = "SORRY!";
+        } 
+        else
+        {
+            text = String.valueOf(val); //converts int to string
+        }
+        currCardLabel.setText(text);
+        
+        if (val == 0) 
+        {
+            currCardLabel.setForeground(Color.RED);
+        } 
+        else 
+        {
+            currCardLabel.setForeground(Color.BLACK);
+        }
+        
+        log.append(game.getCurrentPlayer().getColor() + " drew: " + text + "\n");
+        
+        drawCardBtn.setEnabled(false);
+        movePawnBtn.setEnabled(true);
+        endTurnBtn.setEnabled(true);
+    }
+    
+    //pawn move click
+    private void movePawn() 
+    {
+        if (game.getSelectedPawn()== null) 
+        {
+            log.append("Error: Select pwan first\n");
+
+            //show popup message. I swear we cannot have this many 
+            JOptionPane.showMessageDialog(this, "click on pawn first");
+            return;
+        }
+        
+        boolean success= game.movePawn(game.getSelectedPawn());
+        if (success) 
+        {
+            log.append("Pawn moved\n");
+            gamePanel.refresh();
+            
+            //check for win
+            if (game.isGameOver()) 
+            {
+                Player winner = game.getWinner();
+                log.append(winner.getColor() + " WINS\n");
+
+                //show win popup
+                JOptionPane.showMessageDialog(this, winner.getColor() + " wins!");
+            }
+        } 
+        else 
+        {
+            log.append("Invalid move\n");
+
+            //show error popup
+            JOptionPane.showMessageDialog(this, "cannot move that pawn with this card.");
+        }
+        
+        movePawnBtn.setEnabled(false);
+    }
+    
+    //handles end turn button
+    private void endTurn() 
+    {
+        game.nextTurn();
+        log.append("----------------\n");
+        log.append(game.getCurrentPlayer().getColor() + "'s turn\n");
+        
+        //reset display
+        currCardLabel.setText("Draw a card");
+        currCardLabel.setForeground(Color.BLACK);
+        
+        //reset buttons
+        drawCardBtn.setEnabled(true);
+        movePawnBtn.setEnabled(false);
+        endTurnBtn.setEnabled(false);
+        
+        //clear selection
+        gamePanel.setSelectedPawn(null);
+        gamePanel.refresh();
+    }
+}
