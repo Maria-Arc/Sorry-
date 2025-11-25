@@ -186,24 +186,22 @@ class GamePanel extends JPanel
     //check if user clicked on a pawn and select it
     private void PawnClick(Point click) 
     {
-        //check each player's pawnsd
-        for (Player player : game.getPlayers()) 
+        //check only clicking current players pawn
+        Player currPlayer = game.getCurrentPlayer();
+        for (Pawn pawn : currPlayer.getPawns()) //loops through each player's 4 pawns
         {
-            for (Pawn pawn : player.getPawns()) //loops through each player's 4 pawns
+            Point pawnPos= getPawnPos(pawn);
+            if (pawnPos !=null) 
             {
-                Point pawnPos= getPawnPos(pawn);
-                if (pawnPos !=null) 
+                //calc distance between click and pawn center
+                double distance = click.distance(pawnPos); //distance uses the pythag theorem
+                //if click is within pawn rad
+                if (distance <pawnSize) 
                 {
-                    //calc distance between click and pawn center
-                    double distance = click.distance(pawnPos); //distance uses the pythag theorem
-                    //if click is within pawn rad
-                    if (distance <pawnSize) 
-                    {
-                        selectedPawn = pawn;
-                        game.setSelectedPawn(pawn);
-                        repaint();  //redrew to show selection
-                        return;
-                    }
+                    selectedPawn = pawn;
+                    game.setSelectedPawn(pawn);
+                    repaint();  //redrew to show selection
+                    return;
                 }
             }
         }
@@ -342,6 +340,7 @@ class ControlPanel extends JPanel
     private JButton endTurnBtn;
     private JTextArea log;
     private JLabel currCardLabel;
+    private int currCard = -1;
     
 
     //panel with buttons and game log on right side  
@@ -451,19 +450,19 @@ class ControlPanel extends JPanel
     //handles draw card button click
     private void drawCard() 
     {
-        int val = game.drawCard();
+        currCard = game.drawCard();
         String text;
-        if (val == 0)
+        if (currCard == 0)
         { 
             text = "SORRY!";
         } 
         else
         {
-            text = String.valueOf(val); //converts int to string
+            text = String.valueOf(currCard); //converts int to string
         }
         currCardLabel.setText(text);
         
-        if (val == 0) 
+        if (currCard == 0) 
         {
             currCardLabel.setForeground(Color.RED);
         } 
@@ -474,13 +473,30 @@ class ControlPanel extends JPanel
         
         log.append(game.getCurrentPlayer().getColor() + " drew: " + text + "\n");
         
+
+        if(currCard != 1 && currCard != 2)
+        {
+            boolean allInStart = true;
+            for(Pawn pawn : game.getCurrentPlayer().getPawns())
+            {
+                if(pawn.getState() != Pawn.State.START)
+                {
+                    allInStart = false;
+                    break;
+                }
+            }
+            if(allInStart)
+            {
+                log.append("Cannot leave START with " + text + ". Need 1 or 2.\n");
+            }
+        }
         drawCardBtn.setEnabled(false);
         movePawnBtn.setEnabled(true);
         endTurnBtn.setEnabled(true);
     }
     
     //pawn move click
-    private void movePawn() 
+       private void movePawn() 
     {
         if (game.getSelectedPawn()== null) 
         {
@@ -490,8 +506,17 @@ class ControlPanel extends JPanel
             JOptionPane.showMessageDialog(this, "click on pawn first");
             return;
         }
-        
-        boolean success= game.movePawn(game.getSelectedPawn());
+        Pawn pawn = game.getSelectedPawn();
+        if(pawn.getState() == Pawn.State.START)
+        {
+            if(currCard != 1 && currCard != 2)
+            {
+                log.append("cant leave start with " + currCard + ".\n");
+                JOptionPane.showMessageDialog(this, "can only leave start with a 1 or 2 card");
+                return;
+            }
+        }
+        boolean success= game.movePawn(pawn);
         if (success) 
         {
             log.append("Pawn moved\n");
@@ -522,6 +547,7 @@ class ControlPanel extends JPanel
     private void endTurn() 
     {
         game.nextTurn();
+        currCard = -1;
         log.append("----------------\n");
         log.append(game.getCurrentPlayer().getColor() + "'s turn\n");
         
