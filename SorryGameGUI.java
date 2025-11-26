@@ -130,8 +130,8 @@ class GamePanel extends JPanel
         {
             outerPath[i] = new Point(750,50 + (i-44) * 50);
         }
-
         
+
         //home paths -> the safe spaces leading to home (6 spaces)
         //reds home path horizontal going right
         for (int i = 0;i <6; i++) 
@@ -159,7 +159,7 @@ class GamePanel extends JPanel
         
         //start areas/where the pawns begin
         //red starts bottom right ---NEEDS WORK
-         startAreas[0][0] = new Point(550,670);
+        startAreas[0][0] = new Point(550,670);
         startAreas[0][1] = new Point(580, 670);
         startAreas[0][2] = new Point(550,700);
         startAreas[0][3] = new Point(580,700);
@@ -188,23 +188,45 @@ class GamePanel extends JPanel
     {
         //check only clicking current players pawn
         Player currPlayer = game.getCurrentPlayer();
-        for (Pawn pawn : currPlayer.getPawns()) //loops through each player's 4 pawns
+        for(Player player : game.getPlayers())
         {
-            Point pawnPos= getPawnPos(pawn);
-            if (pawnPos !=null) 
+            for (Pawn pawn : currPlayer.getPawns()) //loops through each player's 4 pawns
             {
-                //calc distance between click and pawn center
-                double distance = click.distance(pawnPos); //distance uses the pythag theorem
-                //if click is within pawn rad
-                if (distance <pawnSize) 
+                Point pawnPos= getPawnPos(pawn);
+                if (pawnPos !=null) 
                 {
-                    selectedPawn = pawn;
-                    game.setSelectedPawn(pawn);
-                    repaint();  //redrew to show selection
-                    return;
+                    //calc distance between click and pawn center
+                    double distance = click.distance(pawnPos); //distance uses the pythag theorem
+                    //if click is within pawn rad
+                    if (distance <pawnSize) 
+                    {
+                        if(pawn.getOwner() == currPlayer)
+                        {
+                            selectedPawn = pawn;
+                            game.setSelectedPawn(pawn);
+                            repaint();  //redrew to show selection
+                        }
+
+                        if(opponentClickListener != null)
+                        {
+                            opponentClickListener.onOpponentClicked(pawn);
+                        }
+                        return;
+                    }
                 }
             }
-        }
+        }   
+    }
+
+    //what is this nonsense
+    public interface OppClickListener
+    {
+        void onOpponentClicked(Pawn pawn);
+    }
+    private OppClickListener opponentClickListener = null;
+    public void setOppClickListener(OppClickListener listener)
+    {
+        this.opponentClickListener = listener;
     }
     
     //find out where to draw pawn
@@ -341,6 +363,9 @@ class ControlPanel extends JPanel
     private JTextArea log;
     private JLabel currCardLabel;
     private int currCard = -1;
+    
+    private boolean waitingForOppSwap = false;
+    private Pawn myPawnSwap = null;
     
 
     //panel with buttons and game log on right side  
@@ -497,7 +522,7 @@ class ControlPanel extends JPanel
     }
     
     //pawn move click
-       private void movePawn() 
+    private void movePawn() 
     {
         if (game.getSelectedPawn()== null) 
         {
@@ -508,11 +533,11 @@ class ControlPanel extends JPanel
             return;
         }
         Pawn pawn = game.getSelectedPawn();
-        
+
         //checks start rule - can only leave start area with 1, 2, or sorry
         if(pawn.getState() == Pawn.State.START)
         {
-            if(currCard != 1 && currCard != 2 &&currCard != 0)
+            if(currCard != 1 && currCard != 2 && currCard != 0)
             {
                 log.append("cant leave start with " + currCard + ".\n");
                 JOptionPane.showMessageDialog(this, "can only leave start with a 1, 2, or SORRY! card");
@@ -520,6 +545,13 @@ class ControlPanel extends JPanel
             }
         }
         boolean success= game.movePawn(pawn);
+
+        //check if card requires a choice
+        if(game.hasPendingChoice())
+        {
+            handleCardChoice(pawn);
+            return;
+        }
         if (success) 
         {
             log.append("Pawn moved\n");
@@ -546,6 +578,244 @@ class ControlPanel extends JPanel
         movePawnBtn.setEnabled(false);
     }
     
+
+    private void handleCardChoice(Pawn pawn)
+    {
+        Game.CardChoice choice = game.getPendingChoice();
+        switch (choice)
+        {
+            case SORRY_START_OR_SWAP:
+                handleSorryChoice(pawn);
+                break;
+            case TEN_FORWARD_OR_BACK:
+                handleTenChoice(pawn);
+                break;
+            case ELEVEN_FORWARD_OR_SWAP:
+                handleElevenChoice(pawn);
+                break;
+            default:
+                break;
+        }
+    }
+    private void handleSorryChoice(Pawn pawn)
+    {
+        boolean canStart;
+        boolean hasOpp = false;
+        if(pawn.getState()==Pawn.State.START)
+        {
+            canStart = true;
+        }
+        else
+        {
+            canStart = false;
+        }
+        for(Player player : game.getPlayers())
+        {
+            if(player != game.getCurrentPlayer())
+            {
+                for(Pawn oppPawn : player.getPawns())
+                {
+                    if(oppPawn.getState() == Pawn.State.MAIN)
+                    {
+                        hasOpp = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if(canStart && hasOpp)  //both options are available
+        {
+            int choice = JOptionPane.showOptionDialog(this, 
+                "Choose your move:",
+                "SORRY!",
+                JOptionPane.YES_NO_CANCEL_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                new String[]{"Move from Start", "Swap with Opponent", "Cancel"},
+                "Move from start");
+            if(choice == 0)
+            {
+
+                if(game.sorryFromStart(pawn))
+                {
+                    log.append("Moved from start and bumped opp\n");
+                    gamePanel.refresh();
+                    movePawnBtn.setEnabled(false);
+                }
+                else
+                {
+                    log.append("no opp to bump\n");
+                }
+            }
+            else if (choice ==1)
+            {
+                log.append("Select opp pawn to swap with.\n");
+                myPawnSwap = pawn;
+                gamePanel.setOppClickListener(opponentPawn -> {
+                    if(opponentPawn.getOwner() != game.getCurrentPlayer())
+                    {
+                        if(game.sorrySwap(myPawnSwap, opponentPawn))
+                        {
+                            log.append("swapped with opponent\n");
+                            gamePanel.refresh();
+                            movePawnBtn.setEnabled(false);
+                            gamePanel.setOppClickListener(null);
+                            myPawnSwap = null;
+                        }
+                        else
+                        {
+                            log.append("Swap failed\n");
+                        }
+                    }
+                    else
+                    {
+                        log.append("Must click an opponent pawn\n");
+                    }
+                });
+            }
+        }
+        else if(canStart)
+        {
+            if(game.sorryFromStart(pawn))
+            {
+                log.append("moved from start and bumped opp\n");
+                gamePanel.refresh();
+                movePawnBtn.setEnabled(false);
+            }
+            else
+            {
+                log.append("no opp to bump\n");
+            }
+        }
+        else if(hasOpp && pawn.getState() == Pawn.State.MAIN)
+        {
+            log.append("click an opp pawn to swap with\n");
+            myPawnSwap = pawn;
+            gamePanel.setOppClickListener(opponentPawn -> {
+                if(opponentPawn.getOwner()!=game.getCurrentPlayer())
+                {
+                    if(game.sorrySwap(myPawnSwap, opponentPawn))
+                    {
+                        log.append("swapped w/ opp\n");
+                        gamePanel.refresh();
+                        movePawnBtn.setEnabled(false);
+                        gamePanel.setOppClickListener(null);
+                        myPawnSwap = null;
+                    }
+                    else
+                    {
+                        log.append("swap failed\n");
+                    }
+                }
+                else
+                {
+                    log.append("must click an opp pawn\n");
+                }
+            });
+        }
+        else
+        {
+            log.append("no valid SORRY moves\n");
+        }
+    }
+    private void handleTenChoice(Pawn pawn) 
+    {
+        int choice = JOptionPane.showOptionDialog(this,
+            "Card 10 - Choose:",
+            "Card 10",
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.QUESTION_MESSAGE,
+            null,
+            new String[]{"Forward 10", "Backward 1"},
+            "Forward 10");
+            
+        boolean success = (choice == 0) ? game.moveForwardTen(pawn) : game.moveBackwardOne(pawn);
+        
+        if (success) 
+        {
+            log.append("Pawn moved!\n");
+            gamePanel.refresh();
+        }
+    }
+    
+    private void handleElevenChoice(Pawn pawn) 
+    {
+        // Check if opponent exists
+        boolean hasOpponent = false;
+        for (Player player : game.getPlayers()) 
+        {
+            if (player != game.getCurrentPlayer()) 
+            {
+                for (Pawn opponentPawn : player.getPawns()) 
+                {
+                    if (opponentPawn.getState() == Pawn.State.MAIN) 
+                    {
+                        hasOpponent = true;
+                        break;
+                    }
+                }
+            }
+        }
+        
+        if (hasOpponent) 
+        {
+            int choice = JOptionPane.showOptionDialog(this,
+                "Card 11 - Choose your move:",
+                "Card 11",
+                JOptionPane.YES_NO_CANCEL_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                new String[]{"Forward 11", "Swap with Opponent", "Cancel"},
+                "Forward 11");
+                
+            if (choice == 0) 
+            {
+                if (game.moveForwardEleven(pawn)) 
+                {
+                    log.append("Pawn moved forward 11!\n");
+                    gamePanel.refresh();
+                    movePawnBtn.setEnabled(false);
+                }
+            } 
+            else if (choice == 1) 
+            {
+                log.append("Click an opp pawn to swap with.\n");
+                myPawnSwap = pawn;
+                gamePanel.setOppClickListener(opponentPawn -> {
+                    if (opponentPawn.getOwner() != game.getCurrentPlayer()) 
+                    {
+                        if (game.swapWithOpponent(myPawnSwap, opponentPawn)) 
+                        {
+                            log.append("Swapped with opp!\n");
+                            gamePanel.refresh();
+                            movePawnBtn.setEnabled(false);
+                            gamePanel.setOppClickListener(null);
+                            myPawnSwap = null;
+                        } 
+                        else 
+                        {
+                            log.append("Swap failed!\n");
+                        }
+                    } 
+                    else 
+                    {
+                        log.append("Must click an opp pawn!\n");
+                    }
+                });
+            }
+        } 
+        else 
+        {
+            //No opponent just move forward
+            if (game.moveForwardEleven(pawn)) 
+            {
+                log.append("Pawn moved forward 11!\n");
+                gamePanel.refresh();
+                movePawnBtn.setEnabled(false);
+            }
+        }
+    }
     //handles end turn button
     private void endTurn() 
     {
