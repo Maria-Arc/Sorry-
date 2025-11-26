@@ -110,29 +110,29 @@ class GamePanel extends JPanel
         //bottom edge -> 0-14. Red's side
         for (int i = 0; i<=14; i++) 
         {
-            outerPath[i] = new Point(50 + i* 50, 750);
+            outerPath[i] = new Point(750 - i* 50, 750);
         }
         
-        //right edge->15-29 going up
+        //left edge->15-29 going up
         for (int i = 15; i <= 29;i++) 
         {
-            outerPath[i] = new Point(750, 750- (i- 14) * 50);
+            outerPath[i] = new Point(50, 750- (i- 14) * 50);
         }
         
-        //top edge->30-44. Yellow side going left
+        //top edge->30-44. L ->r
         for (int i = 30; i<= 44; i++) 
         {
-            outerPath[i] = new Point(750 -(i -29) * 50, 50);
+            outerPath[i] = new Point(50 +(i -29) * 50, 50);
         }
         
         //left edge ->45-59 going down
         for (int i =45; i<= 59; i++) 
         {
-            outerPath[i] = new Point(50,50 + (i-44) * 50);
+            outerPath[i] = new Point(750,50 + (i-44) * 50);
         }
+
         
         //home paths -> the safe spaces leading to home (6 spaces)
-
         //reds home path horizontal going right
         for (int i = 0;i <6; i++) 
         {
