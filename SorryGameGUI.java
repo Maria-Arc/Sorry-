@@ -11,6 +11,7 @@ public class SorryGameGUI extends JFrame
     private GamePanel gamePanel;
     private ControlPanel controlPanel;
     private Game game;
+    private int numPlayers;
     
     public SorryGameGUI() 
     {
@@ -19,7 +20,12 @@ public class SorryGameGUI extends JFrame
         setLayout(new BorderLayout());
         
         //start new game with 4 players
-        game = new Game(4);
+        numPlayers = showPlayerSelectionDialog();
+        if(numPlayers == -1)
+        {
+            System.exit(0); //user cancelled
+        }
+        game = new Game(numPlayers);
         
         //we gonna set up two main panels. The first one is the board on the left. the second one is the controls on the right
         gamePanel= new GamePanel(game);
@@ -32,7 +38,35 @@ public class SorryGameGUI extends JFrame
         setLocationRelativeTo(null);    //center on screen
         setVisible(true);
     }
+
+    private int showPlayerSelectionDialog()
+    {
+        Object[] options = {"2 PLayers", "3 Players", "4 Players"};
+
+        int choice = JOptionPane.showOptionDialog(
+            null,
+            "How many Players?\n\nUnselecred colors shalt be disabled.",
+            "Player Selection",
+            JOptionPane.DEFAULT_OPTION,
+            JOptionPane.QUESTION_MESSAGE,
+            null,
+            options,
+            options[0]
+        );
     
+
+        switch(choice)
+        {
+            case 0:
+                return 2;
+            case 1:
+                return 3;
+           case 2: 
+                return 4;
+            default:
+                return -1;
+        }
+    }   
     public static void main(String [] args) 
     {
         SwingUtilities.invokeLater(()->new SorryGameGUI());
@@ -211,34 +245,54 @@ class GamePanel extends JPanel
     {
         //check only clicking current players pawn
         Player currPlayer = game.getCurrentPlayer();
-        for(Player player : game.getPlayers())
+        for (Pawn pawn : currPlayer.getPawns()) //loops through each player's 4 pawns
         {
-            for (Pawn pawn : currPlayer.getPawns()) //loops through each player's 4 pawns
+            Point pawnPos= getPawnPos(pawn);
+            if (pawnPos !=null) 
             {
-                Point pawnPos= getPawnPos(pawn);
-                if (pawnPos !=null) 
+               //calc distance between click and pawn center
+                double distance = click.distance(pawnPos); //distance uses the pythag theorem
+                //if click is within pawn rad
+                if (distance <pawnSize) 
                 {
-                    //calc distance between click and pawn center
-                    double distance = click.distance(pawnPos); //distance uses the pythag theorem
-                    //if click is within pawn rad
-                    if (distance <pawnSize) 
+                    if(pawn.getOwner() == currPlayer)
                     {
-                        if(pawn.getOwner() == currPlayer)
-                        {
-                            selectedPawn = pawn;
-                            game.setSelectedPawn(pawn);
-                            repaint();  //redrew to show selection
-                        }
+                        selectedPawn = pawn;
+                        game.setSelectedPawn(pawn);
+                        repaint();  //redrew to show selection
+                    }
 
-                        if(opponentClickListener != null)
+                    if(opponentClickListener != null)
+                    {
+                        opponentClickListener.onOpponentClicked(pawn);
+                    }
+                    return;
+                }
+            }
+        }
+        //allow clicking on an active opp pawn for swap
+        for(Player player : game.getActivePlayers())
+        {
+            if(player != currPlayer)
+            {
+                for(Pawn pawn : player.getPawns())
+                {
+                    Point pawnPos = getPawnPos(pawn);
+                    if(pawnPos != null)
+                    {
+                        double distance = click.distance(pawnPos);
+                        if(distance < pawnSize)
                         {
-                            opponentClickListener.onOpponentClicked(pawn);
+                            if(opponentClickListener != null)
+                            {
+                                opponentClickListener.onOpponentClicked(pawn);
+                            }
+                            return;
                         }
-                        return;
                     }
                 }
             }
-        }   
+        }
     }
 
     //what is this nonsense
@@ -303,14 +357,25 @@ class GamePanel extends JPanel
         for (Player player : game.getPlayers()) //loop through each player
         {
             Color color =colors.get(player.getColor()); //get this player's color
-            
+            boolean isActive = game.isPlayerActive(player);
+            if(isActive)
+            {
+                color = new Color(color.getRed(), color.getGreen(), color.getBlue(), 100); //will sort of fade colors
+            }
             for (Pawn pawn : player.getPawns()) //draw each of this players pawns
             {
                 Point pos = getPawnPos(pawn);
                 if (pos != null) 
                 {
                     //draw shadow so it is easier to identify
-                    g2.setColor(color.darker());
+                    if(isActive)
+                    {
+                        g2.setColor(color.darker());
+                    }
+                    else
+                    {
+                        g2.setColor(new Color (0, 0, 0,5));
+                    }
                     g2.fillOval(pos.x - pawnSize/2 +2, pos.y- pawnSize/2 +2, pawnSize, pawnSize);
                     
                     //draw pawn bod
@@ -318,8 +383,11 @@ class GamePanel extends JPanel
                     g2.fillOval(pos.x - pawnSize/2, pos.y - pawnSize/2, pawnSize, pawnSize);
 
                     //add highlight gives a 3d effect
-                    g2.setColor(color.brighter());
-                    g2.fillOval(pos.x- pawnSize/2 + 3,pos.y -pawnSize/2 + 3, pawnSize/3, pawnSize/3);
+                    if(isActive)
+                    {    
+                        g2.setColor(color.brighter());
+                        g2.fillOval(pos.x- pawnSize/2 + 3,pos.y -pawnSize/2 + 3, pawnSize/3, pawnSize/3);
+                    }
                     
                     //draw border. yellow if pawn is selected, black if not selected
                     if (pawn == selectedPawn) 
@@ -745,15 +813,22 @@ class ControlPanel extends JPanel
     private void handleTenChoice(Pawn pawn) 
     {
         int choice = JOptionPane.showOptionDialog(this,
-            "Card 10 - Choose:",
+            "Card 10 -Choose:",
             "Card 10",
             JOptionPane.YES_NO_OPTION,
             JOptionPane.QUESTION_MESSAGE,
             null,
             new String[]{"Forward 10", "Backward 1"},
             "Forward 10");
-            
-        boolean success = (choice == 0) ? game.moveForwardTen(pawn) : game.moveBackwardOne(pawn);
+        boolean success;
+        if(choice == 0)
+        {
+            success = game.moveForwardTen(pawn);
+        }    
+        else
+        {
+            success = game.moveBackwardOne(pawn);
+        }
         
         if (success) 
         {
@@ -764,7 +839,7 @@ class ControlPanel extends JPanel
     
     private void handleElevenChoice(Pawn pawn) 
     {
-        // Check if opponent exists
+        //check if opp exists
         boolean hasOpponent = false;
         for (Player player : game.getPlayers()) 
         {
@@ -845,7 +920,8 @@ class ControlPanel extends JPanel
         game.nextTurn();
         currCard = -1;
         log.append("----------------\n");
-        log.append(game.getCurrentPlayer().getColor() + "'s turn\n");
+        Player currPlayer = game.getCurrentPlayer();
+        log.append(currPlayer.getColor() + "'s turn\n");
         
         //reset display
         currCardLabel.setText("Draw a card");
