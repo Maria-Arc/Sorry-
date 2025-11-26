@@ -1,16 +1,29 @@
 import java.util.HashMap;
 
 public class Controller {
+
+// Hold players, deck, and board
+// Runs the game loop
+// Keeps track of whose turn
+// Draws card
+// Applies card rules
+// Validates moves
+// Checks win conditions
+
    
     private HashMap<Integer, Player.Color>slide = new HashMap<>();      //holds index ofslides and color, all slides move
-    
+    CardDeck deck;
+    Board board;
+    Player[] players;
 
-    public Controller(){
-
-
-
-
-
+    public Controller(int numPlayers){
+        Player.Color[] options = {RED, BLUE, GREEN, YELLOW};
+        
+        players = new Player[numPlayers];
+        for (int i = 0; i < numPlayers; i++)
+            players[i] = new Player(i, options[i]);
+        deck = new CardDeck();
+        board = new Board(numPlayers);
 
 
         //initialize slide combinations
@@ -41,8 +54,6 @@ public class Controller {
             return 5;
         default:
             return -1;
-
-
     }
    }
 

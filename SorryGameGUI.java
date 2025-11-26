@@ -89,12 +89,12 @@ class GamePanel extends JPanel
     {
         try 
         {
-            boardImage = ImageIO.read(new File("sorry-board-game_268612.jpg"));
+            boardImage = ImageIO.read(new File("sorry-board-image.jpg"));
             System.out.println("Board image loaded");
         } 
         catch (Exception e)
         {
-            System.out.println("ERROR:couldnt find sorry-board-game_268612.jpg");
+            System.out.println("ERROR:couldnt find sorry-board-image.jpg");
         }
     }
     
@@ -104,61 +104,84 @@ class GamePanel extends JPanel
         outerPath = new Point[60];
         homePath = new Point[4][6];
         startAreas = new Point[4][4];
+        int h = getHeight();
+        int w = getWidth();
         
         //the outer path (60 spaces around the board)
         
         //bottom edge -> 0-14. Red's side
         for (int i = 0; i<=14; i++) 
         {
-            outerPath[i] = new Point(750 - i* 50, 750);
+            outerPath[i] = new Point(750 - i* 47 ,   750);
         }
         
         //left edge->15-29 going up
         for (int i = 15; i <= 29;i++) 
         {
-            outerPath[i] = new Point(50, 750- (i- 14) * 50);
+            outerPath[i] = new Point(50, 800- (i- 14) * 47);
         }
         
         //top edge->30-44. L ->r
         for (int i = 30; i<= 44; i++) 
         {
-            outerPath[i] = new Point(50 +(i -29) * 50, 50);
+            outerPath[i] = new Point((i -29) * 47, 50);
         }
         
         //left edge ->45-59 going down
         for (int i =45; i<= 59; i++) 
         {
-            outerPath[i] = new Point(750,50 + (i-44) * 50);
+            outerPath[i] = new Point(750, (i-44) * 47);
         }
         
 
+        Point temp = new Point(outerPath[17].getLocation());
         //home paths -> the safe spaces leading to home (6 spaces)
         //reds home path horizontal going right
+        //wrong this is blues home path
         for (int i = 0;i <6; i++) 
         {
-            homePath[0][i] = new Point(150 + i * 40, 650);
+            //homePath[0][i] = new Point(150 + i * 40, 650);
+            
+            if ( i == 5)
+                homePath[0][i] = new Point( (int)temp.getX() + (i+1) * 50, (int)temp.getY() );
+            else
+               homePath[0][i] = new Point( (int)temp.getX() + (i+1) * 46, (int)temp.getY() );
         }
         
         //blues home path, start at 17 and go up
+        //this is actually reds
+        temp = new Point(outerPath[2].getLocation());
         for (int i = 0; i < 6; i++) 
-        {
-            homePath[1][i] = new Point(650, 600- i* 40);
+        {   if ( i == 5)
+                homePath[1][i] = new Point((int) temp.getX() , (int)temp.getY() -46 - i* 50);
+            else
+                 homePath[1][i] = new Point((int) temp.getX() , (int)temp.getY() -46 - i* 46);
         }
         
         //yellows home path horizontal going left
+        //this is green
+
+        temp = new Point(outerPath[47].getLocation());
         for (int i = 0; i < 6; i++) 
-        {
-            homePath[2][i] =new Point(650 - i* 40, 150);
+        {   if ( i == 5)
+                homePath[2][i] = new Point((int) temp.getX()-46 - i* 50 , (int)temp.getY() );
+            else
+                 homePath[2][i] = new Point((int) temp.getX() -46 - i* 46 , (int)temp.getY());
         }
         
         //greens home path start and 47 go down
-        for (int i= 0; i < 6; i++) 
-        {
-            homePath[3][i] = new Point(150, 150+ i * 40);
+        //yellow
+        temp = new Point(outerPath[32].getLocation());
+        for (int i = 0; i < 6; i++) 
+        {   if ( i == 5)
+                homePath[3][i] = new Point((int) temp.getX() , (int)temp.getY() +46 + i* 50);
+            else
+                 homePath[3][i] = new Point((int) temp.getX() , (int)temp.getY() +46 + i* 46);
         }
         
         //start areas/where the pawns begin
         //red starts bottom right ---NEEDS WORK
+    
         startAreas[0][0] = new Point(550,670);
         startAreas[0][1] = new Point(580, 670);
         startAreas[0][2] = new Point(550,700);
@@ -266,12 +289,12 @@ class GamePanel extends JPanel
         {
             g2.drawImage(boardImage, 0, 0, boardSize, boardSize, null);
         } 
-        
+       
         //draw pawns on top
         drawPawns(g2);
 
         //show whose turn it is
-        showCurrPlayer(g2);
+        //showCurrPlayer(g2);
     }
       
     //draw pawns on da board
