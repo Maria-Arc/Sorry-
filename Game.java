@@ -6,6 +6,7 @@ public class Game {
     private int currentPlayerIndex = 0;
     private int currentCardValue = -1;
     private Pawn selectedPawn = null;
+    private boolean[] activePlayers; // Track which players are active
     
     // For card choices
     public enum CardChoice {
@@ -18,15 +19,19 @@ public class Game {
     private CardChoice pendingChoice = CardChoice.NONE;
     
     public Game(int numPlayers) {
-        players = new Player[numPlayers];
+        players = new Player[4]; // Always create 4 players
+        activePlayers = new boolean[4];
+        
         Player.Color[] colors = {Player.Color.RED, Player.Color.BLUE, 
                                   Player.Color.YELLOW, Player.Color.GREEN};
         
-        for (int i = 0; i < numPlayers; i++) {
+        // Initialize all players but mark only the selected ones as active
+        for (int i = 0; i < 4; i++) {
             players[i] = new Player(i, colors[i]);
+            activePlayers[i] = (i < numPlayers); // Only first 'numPlayers' are active
         }
         
-        board = new Board(numPlayers);
+        board = new Board(4); // Board always has 4 home paths
         deck = new CardDeck();
         controller = new Controller();
     }
@@ -37,6 +42,22 @@ public class Game {
     
     public Player getCurrentPlayer() {
         return players[currentPlayerIndex];
+    }
+    
+    // Get only active players
+    public Player[] getActivePlayers() {
+        java.util.ArrayList<Player> active = new java.util.ArrayList<>();
+        for (int i = 0; i < players.length; i++) {
+            if (activePlayers[i]) {
+                active.add(players[i]);
+            }
+        }
+        return active.toArray(new Player[0]);
+    }
+    
+    // Check if a player is active
+    public boolean isPlayerActive(Player player) {
+        return activePlayers[player.getId()];
     }
     
     public Board getBoard() {
@@ -95,9 +116,9 @@ public class Game {
             return false;
         }
         
-        // Find opponent to bump
+        // Find opponent to bump (only active opponents)
         for (Player player : players) {
-            if (player != myPawn.getOwner()) {
+            if (player != myPawn.getOwner() && activePlayers[player.getId()]) {
                 for (Pawn opponentPawn : player.getPawns()) {
                     if (opponentPawn.getState() == Pawn.State.MAIN) {
                         int targetPos = opponentPawn.getIndex();
@@ -123,6 +144,11 @@ public class Game {
         }
         
         if (opponentPawn.getOwner() == getCurrentPlayer()) {
+            return false;
+        }
+        
+        // Only allow swapping with active opponents
+        if (!activePlayers[opponentPawn.getOwner().getId()]) {
             return false;
         }
         
@@ -168,6 +194,11 @@ public class Game {
         }
         
         if (opponentPawn.getOwner() == getCurrentPlayer()) {
+            return false;
+        }
+        
+        // Only allow swapping with active opponents
+        if (!activePlayers[opponentPawn.getOwner().getId()]) {
             return false;
         }
         
@@ -251,10 +282,10 @@ public class Game {
         boolean canStartFromStart = (pawn.getState() == Pawn.State.START);
         boolean canSwap = (pawn.getState() == Pawn.State.MAIN);
         
-        // Check if opponent exists
+        // Check if active opponent exists
         boolean opponentExists = false;
         for (Player player : players) {
-            if (player != pawn.getOwner()) {
+            if (player != pawn.getOwner() && activePlayers[player.getId()]) {
                 for (Pawn opponentPawn : player.getPawns()) {
                     if (opponentPawn.getState() == Pawn.State.MAIN) {
                         opponentExists = true;
@@ -297,10 +328,10 @@ public class Game {
             return false;
         }
         
-        // Check if opponent exists
+        // Check if active opponent exists
         boolean opponentExists = false;
         for (Player player : players) {
-            if (player != pawn.getOwner()) {
+            if (player != pawn.getOwner() && activePlayers[player.getId()]) {
                 for (Pawn opponentPawn : player.getPawns()) {
                     if (opponentPawn.getState() == Pawn.State.MAIN) {
                         opponentExists = true;
@@ -387,59 +418,69 @@ public class Game {
     private int getPlayerStartPosition(Player player) {
         // Exact positions as specified
         switch (player.getColor()) {
-            case RED: return 11;     // Red exits at 11
-            case BLUE: return 56;    // Blue exits at 56
-            case YELLOW: return 41;  // Yellow exits at 41
-            case GREEN: return 26;   // Green exits at 26
+            case RED: return 4;     // Red exits at 4
+            case BLUE: return 19;   // Blue exits at 19
+            case YELLOW: return 34; // Yellow exits at 34
+            case GREEN: return 49;  // Green exits at 49
             default: return 0;
         }
     }
     
     private int getPlayerHomeEntrance(Player player) {
-        // Home entrance is 5 spaces before starting position
+        // Home entrance is 2 spaces before starting position
         switch (player.getColor()) {
-            case RED: return 6;      // 5 before 11
-            case BLUE: return 51;    // 5 before 56
-            case YELLOW: return 36;  // 5 before 41
-            case GREEN: return 21;   // 5 before 26
+            case RED: return 2;     // 2 before 4
+            case BLUE: return 17;   // 2 before 19
+            case YELLOW: return 32; // 2 before 34
+            case GREEN: return 47;  // 2 before 49
             default: return 0;
         }
     }
     
     public void nextTurn() {
-        currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+        // Skip inactive players
+        do {
+            currentPlayerIndex = (currentPlayerIndex + 1) % 4;
+        } while (!activePlayers[currentPlayerIndex]);
+        
         currentCardValue = -1;
         selectedPawn = null;
         pendingChoice = CardChoice.NONE;
     }
     
     public boolean isGameOver() {
+        // Only check active players for win condition
         for (Player player : players) {
-            boolean allFinished = true;
-            for (Pawn pawn : player.getPawns()) {
-                if (pawn.getState() != Pawn.State.FINISHED) {
-                    allFinished = false;
-                    break;
+            if (activePlayers[player.getId()]) {
+                boolean allFinished = true;
+                for (Pawn pawn : player.getPawns()) {
+                    if (pawn.getState() != Pawn.State.FINISHED) {
+                        allFinished = false;
+                        break;
+                    }
                 }
-            }
-            if (allFinished) {
-                return true;
+                if (allFinished) {
+                    return true;
+                }
             }
         }
         return false;
     }
     
     public Player getWinner() {
+        // Only active players can win
         for (Player player : players) {
-            boolean allFinished = true;
-            for (Pawn pawn : player.getPawns()) {
-                if (pawn.getState() != Pawn.State.FINISHED) {
-                    allFinished = false;
-                    break;
+            if (activePlayers[player.getId()]) {
+                boolean allFinished = true;
+                for (Pawn pawn : player.getPawns()) {
+                    if (pawn.getState() != Pawn.State.FINISHED) {
+                        allFinished = false;
+                        break;
+                    }
                 }
-            }
-            if (allFinished) {
-                return player;
+                if (allFinished) {
+                    return player;
+                }
             }
         }
         return null;
