@@ -474,7 +474,8 @@ class ControlPanel extends JPanel
         log.append(game.getCurrentPlayer().getColor() + " drew: " + text + "\n");
         
 
-        if(currCard != 1 && currCard != 2)
+        //check if player can from from START. can only leave with 1, 2, or SORRY (0)
+        if(currCard != 1 && currCard != 2 && currCard != 0)
         {
             boolean allInStart = true;
             for(Pawn pawn : game.getCurrentPlayer().getPawns())
@@ -507,12 +508,14 @@ class ControlPanel extends JPanel
             return;
         }
         Pawn pawn = game.getSelectedPawn();
+        
+        //checks start rule - can only leave start area with 1, 2, or sorry
         if(pawn.getState() == Pawn.State.START)
         {
-            if(currCard != 1 && currCard != 2)
+            if(currCard != 1 && currCard != 2 &&currCard != 0)
             {
                 log.append("cant leave start with " + currCard + ".\n");
-                JOptionPane.showMessageDialog(this, "can only leave start with a 1 or 2 card");
+                JOptionPane.showMessageDialog(this, "can only leave start with a 1, 2, or SORRY! card");
                 return;
             }
         }
