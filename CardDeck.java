@@ -57,7 +57,7 @@ public class CardDeck {
                     rule = "Move forward 8";
                     break;
                 case 10:
-                    rule = "Move forward 7 or backward 1";
+                    rule = "Move forward 10 or backward 1";
                     break;
                 case 11:
                     rule = "Move forward 11";
