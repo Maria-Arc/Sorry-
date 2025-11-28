@@ -28,8 +28,8 @@ public class CardDeck {
     }
 
     public class Card{
-        int value;
-        String rule;
+        private int value;
+        private String rule;
 
         public Card(int v){
             value = v;
@@ -73,6 +73,10 @@ public class CardDeck {
         
         public int getValue() {
         return value;
+        }
+
+        public String getRule(){
+            return rule;
         }
 
         @Override
