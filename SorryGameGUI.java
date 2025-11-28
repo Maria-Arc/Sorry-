@@ -852,6 +852,7 @@ class ControlPanel extends JPanel
         {
             log.append("Pawn moved!\n");
             gamePanel.refresh();
+            movePawnBtn.setEnabled(false);
         }
     }
     
