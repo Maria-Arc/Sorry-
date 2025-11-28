@@ -710,6 +710,8 @@ class ControlPanel extends JPanel
     {
         boolean canStart;
         boolean hasOpp = false;
+
+        //check if there is pawns in START
         if(pawn.getState()==Pawn.State.START)
         {
             canStart = true;
@@ -718,6 +720,10 @@ class ControlPanel extends JPanel
         {
             canStart = false;
         }
+
+
+        //check if any opponents are on the board
+
         for(Player player : game.getPlayers())
         {
             if(player != game.getCurrentPlayer())
@@ -733,80 +739,25 @@ class ControlPanel extends JPanel
             }
         }
 
-        if(canStart && hasOpp)  //both options are available
+        //Pawn is in start, can only move from start, bump opponent, cannot swap
+        if(canStart && hasOpp)
         {
-            int choice = JOptionPane.showOptionDialog(this, 
-                "Choose your move:",
-                "SORRY!",
-                JOptionPane.YES_NO_CANCEL_OPTION,
-                JOptionPane.QUESTION_MESSAGE,
-                null,
-                new String[]{"Move from Start", "Swap with Opponent", "Cancel"},
-                "Move from start");
-            if(choice == 0)
-            {
-
-                if(game.sorryFromStart(pawn))
-                {
-                    log.append("Moved from start and bumped opp\n");
-                    gamePanel.refresh();
-                    movePawnBtn.setEnabled(false);
-                }
-                else
-                {
-                    log.append("no opp to bump\n");
-                }
-            }
-            else if (choice ==1)
-            {
-                log.append("Select opp pawn to swap with.\n");
-                myPawnSwap = pawn;
-                gamePanel.setOppClickListener(opponentPawn -> {
-                    if(opponentPawn.getOwner() != game.getCurrentPlayer())
-                    {
-                        if(game.sorrySwap(myPawnSwap, opponentPawn))
-                        {
-                            log.append("swapped with opponent\n");
-                            gamePanel.refresh();
-                            movePawnBtn.setEnabled(false);
-                            gamePanel.setOppClickListener(null);
-                            myPawnSwap = null;
-                        }
-                        else
-                        {
-                            log.append("Swap failed\n");
-                        }
-                    }
-                    else
-                    {
-                        log.append("Must click an opponent pawn\n");
-                    }
-                });
-            }
-        }
-        else if(canStart)
-        {
-            if(game.sorryFromStart(pawn))
-            {
-                log.append("moved from start and bumped opp\n");
-                gamePanel.refresh();
-                movePawnBtn.setEnabled(false);
-            }
-            else
-            {
-                log.append("no opp to bump\n");
-            }
-        }
-        else if(hasOpp && pawn.getState() == Pawn.State.MAIN)
-        {
-            log.append("click an opp pawn to swap with\n");
+            log.append("Click an opponent pawn to bump and take their spot\n");
             myPawnSwap = pawn;
             gamePanel.setOppClickListener(opponentPawn -> {
-                if(opponentPawn.getOwner()!=game.getCurrentPlayer())
+                if(opponentPawn.getOwner() != game.getCurrentPlayer() && opponentPawn.getState() == Pawn.State.MAIN)
                 {
-                    if(game.sorrySwap(myPawnSwap, opponentPawn))
+                    //get opponent pos
+                    int targetPos = opponentPawn.getIndex();
+
+                    //send opponent back to start
+                    opponentPawn.setState(Pawn.State.START);
+                    opponentPawn.setIndex(-1);
+
+                    //move pawn to their pos
+                    if(game.getBoard().movePawnOuter(myPawnSwap, targetPos))
                     {
-                        log.append("swapped w/ opp\n");
+                        log.append("Moved from START and bumped opponent\n");
                         gamePanel.refresh();
                         movePawnBtn.setEnabled(false);
                         gamePanel.setOppClickListener(null);
@@ -814,18 +765,24 @@ class ControlPanel extends JPanel
                     }
                     else
                     {
-                        log.append("swap failed\n");
+                        log.append("Move failed\n");
                     }
                 }
                 else
                 {
-                    log.append("must click an opp pawn\n");
+                    log.append("Must click an opponent pawn on the board\n");
                 }
             });
         }
-        else
+        else if(canStart && !hasOpp)    //pawn is in start but no opponents
         {
-            log.append("no valid SORRY moves\n");
+            log.append("No opponents on board to bump\n");
+            JOptionPane.showMessageDialog(this, "No opponents to bump, cannot use SORRY!");
+        }
+        else    //pawn is not in start
+        {
+            log.append("SORRY! can only be used from START\n");
+            JOptionPane.showMessageDialog(this,"SORRY! card can only be used to move a pawn from START");
         }
     }
     private void handleTenChoice(Pawn pawn) 
