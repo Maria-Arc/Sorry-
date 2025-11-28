@@ -138,8 +138,8 @@ class GamePanel extends JPanel
         outerPath = new Point[60];
         homePath = new Point[4][6];
         startAreas = new Point[4][4];
-        int h = getHeight();
-        int w = getWidth();
+        // int h = getHeight();
+        // int w = getWidth();
         
         //the outer path (60 spaces around the board)
         
@@ -348,7 +348,7 @@ class GamePanel extends JPanel
         drawPawns(g2);
 
         //show whose turn it is
-        //showCurrPlayer(g2);
+        showCurrPlayer(g2);
     }
       
     //draw pawns on da board
@@ -566,19 +566,30 @@ class ControlPanel extends JPanel
     //handles draw card button click
     private void drawCard() 
     {
-        currCard = game.drawCard();
+        CardDeck.Card currCard = game.drawCard();
         String text;
-        if (currCard == 0)
-        { 
-            text = "SORRY!";
-        } 
-        else
-        {
-            text = String.valueOf(currCard); //converts int to string
-        }
-        currCardLabel.setText(text);
-        
-        if (currCard == 0) 
+ 
+        text = currCard.toString(); 
+
+
+   
+        currCardLabel.setText("<html>"
+            + "<div style='text-align:center; width:150px;'>"
+            + "<div style='font-size:15pt; display:inline-block; margin:0; padding:0;'>" + currCard.rule + "</div>"
+            + "<div style='font-size:60pt; margin:0; padding:0;'>" + text + "</div>"
+            + "</div>"
+            + "</html>");
+
+
+
+
+     
+
+
+        //TODO: change the label and add rules
+
+
+        if (currCard.getValue() == 0) 
         {
             currCardLabel.setForeground(Color.RED);
         } 
@@ -591,7 +602,7 @@ class ControlPanel extends JPanel
         
 
         //check if player can from from START. can only leave with 1, 2, or SORRY (0)
-        if(currCard != 1 && currCard != 2 && currCard != 0)
+        if(currCard.getValue() != 1 && currCard.getValue() != 2 && currCard.getValue() != 0)
         {
             boolean allInStart = true;
             for(Pawn pawn : game.getCurrentPlayer().getPawns())

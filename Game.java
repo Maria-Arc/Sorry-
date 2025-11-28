@@ -33,7 +33,7 @@ public class Game {
         
         board = new Board(4); // Board always has 4 home paths
         deck = new CardDeck();
-        controller = new Controller();
+        controller = new Controller(4);
     }
     
     public Player[] getPlayers() {
@@ -68,11 +68,12 @@ public class Game {
         return controller;
     }
     
-    public int drawCard() {
+    public CardDeck.Card drawCard() {
         CardDeck.Card card = deck.Draw();
-        currentCardValue = card.getValue();
-        pendingChoice = CardChoice.NONE;
-        return currentCardValue;
+        // currentCardValue = card.getValue();
+        // pendingChoice = CardChoice.NONE;
+        // return currentCardValue;
+        return card;
     }
     
     public void setSelectedPawn(Pawn pawn) {

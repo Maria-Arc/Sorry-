@@ -27,11 +27,48 @@ public class CardDeck {
         Collections.shuffle(deck);
     }
 
-    private class Card{
+    public class Card{
         int value;
+        String rule;
 
         public Card(int v){
             value = v;
+
+            switch (value){
+                case 1:
+                    rule = "Move from Start or move forward 1";
+                    break;
+                case 2:
+                    rule = "Move from Start or move forward 2";
+                    break;
+                case 3:
+                    rule = "Move forward 3";
+                    break;
+                case 4:
+                    rule = "Move backward 4";
+                    break;
+                case 5:
+                    rule = "Move forward 5";
+                    break;
+                case 7:
+                      rule = "Move forward 7 or split between two pawns";
+                    break;
+                 case 8:
+                    rule = "Move forward 8";
+                    break;
+                case 10:
+                    rule = "Move forward 7 or backward 1";
+                    break;
+                case 11:
+                    rule = "Move forward 11";
+                    break;
+                case 12:
+                    rule = "Move forward 12";
+                    break;
+                case 0:
+                    rule = "Move from Start and switch places with an oppnent, whom you bump back to Start";
+
+            }
         }
         
         public int getValue() {
