@@ -397,7 +397,7 @@ public class Game2 {
         
         // Check for slide
         if (canSlide(pawn, targetIndex)) {
-            int slideLen = controller.slideLength(targetIndex);
+            int slideLen = slideLength(targetIndex);
             int finalIndex = (targetIndex + slideLen) % 60;
             board.movePawnOuter(pawn, finalIndex);
         }
