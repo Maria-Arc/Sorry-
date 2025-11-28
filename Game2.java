@@ -107,12 +107,12 @@ public class Game2 {
    }
 
    //lowkey hardcodedslide length
-   public int slideLength(int index){
+     public int slideLength(int index){
     switch(index){
         case 1: case 14: case 31: case 46:
-            return 4;
+            return 3;
         case 9: case 24: case 39: case 54:
-            return 5;
+            return 4;
         default:
             return -1;
     }
