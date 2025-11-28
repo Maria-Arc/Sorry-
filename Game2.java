@@ -107,7 +107,7 @@ public class Game2 {
    }
 
    //lowkey hardcodedslide length
-     public int slideLength(int index){
+   public int slideLength(int index){
     switch(index){
         case 1: case 16: case 31: case 46:
             return 3;
@@ -284,38 +284,38 @@ public class Game2 {
     // SORRY: Ask player for choice
     private boolean handleSorryCard(Pawn pawn) {
         // Check what options are available
-        boolean canStartFromStart = (pawn.getState() == Pawn.State.START);
-        boolean canSwap = (pawn.getState() == Pawn.State.MAIN);
-        
-        // Check if active opponent exists
+
+        if(pawn.getState() != Pawn.State.START)
+        {
+            return false;
+        }
         boolean opponentExists = false;
-        for (Player player : players) {
-            if (player != pawn.getOwner() ){
-                for (Pawn opponentPawn : player.getPawns()) {
-                    if (opponentPawn.getState() == Pawn.State.MAIN) {
+        for(Player player : players)
+        {
+            if(player != pawn.getOwner())
+            {
+                for(Pawn opponentPawn : player.getPawns())
+                {
+                    if(opponentPawn.getState() == Pawn.State.MAIN)
+                    {
                         opponentExists = true;
                         break;
                     }
                 }
             }
         }
-        
-        if (canStartFromStart && opponentExists) {
-            // Has option: set pending choice
-            pendingChoice = CardChoice.SORRY;
-            return false; // Don't execute yet, wait for choice
-        } else if (canStartFromStart) {
-            // Only option: start from START
-            return sorryFromStart(pawn);
-        } else if (canSwap && opponentExists) {
-            // Only option: need to select opponent
-            pendingChoice = CardChoice.SORRY;
+
+        if(opponentExists)
+        {
+            pendingChoice = CardChoice.SORRY;   //lets GUI handle it
             return false;
         }
-        
-        return false; // No valid moves
+        else
+        {
+            return false;
+        }
+
     }
-    
     // CARD 10: Ask for choice
     private boolean handleCard10(Pawn pawn) {
         if (pawn.getState() != Pawn.State.MAIN) {
@@ -484,5 +484,4 @@ public class Game2 {
         return null;
     }
 }
-
 
