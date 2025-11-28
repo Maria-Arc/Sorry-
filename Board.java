@@ -25,21 +25,41 @@ public class Board {
     }
     
     
-
-    public void movePawnOuter(Pawn p, int index){
-
-        if (outerPath[index] == null){              //if spot is empty set the outerpath to reference that pawn and 
-            outerPath[index] = p;                   //change the data inside the pawn itself to correspond
-            p.setIndex(index);
-            p.setState(Pawn.State.MAIN);
+    public boolean movePawnOuter(Pawn p, int index)
+    {
+        //check who is at target position
+        Pawn target = outerPath[index];
+        
+        if (target !=null && target.getOwner()== p.getOwner()) 
+        {
+            //your own pawn is there, move fails. pawn stays where it is
+            return false;
         }
-        else{                                            //if spot is occupied send pawn to home and then put pawn there
-            outerPath[index].setState(Pawn.State.START);
-            outerPath[index].setIndex(-1);
-
+        
+        //clear old pawns position
+        if (p.getState() == Pawn.State.MAIN && p.getIndex() >= 0) {
+            outerPath[p.getIndex()] = null;
+        }
+        
+        if (target == null) 
+        {
+            //the space is empty
             outerPath[index] = p;
             p.setIndex(index);
             p.setState(Pawn.State.MAIN);
+            return true;
+        }
+        else 
+        {
+            //opponent pawn is there. bump them back to START
+            target.setState(Pawn.State.START);
+            target.setIndex(-1);
+            
+            //move your pawn to that location
+            outerPath[index] =p;
+            p.setIndex(index);
+            p.setState(Pawn.State.MAIN);
+            return true;
         }
     }
     
@@ -51,11 +71,6 @@ public class Board {
             p.setIndex(index);
         }
 
-    }
-
-    public void movePawnStart(Pawn p){
-        p.setState(Pawn.State.START);
-        p.setIndex(-1);
     }
     
 
