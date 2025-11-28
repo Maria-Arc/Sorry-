@@ -70,9 +70,8 @@ public class Game {
     
     public CardDeck.Card drawCard() {
         CardDeck.Card card = deck.Draw();
-        // currentCardValue = card.getValue();
-        // pendingChoice = CardChoice.NONE;
-        // return currentCardValue;
+         currentCardValue = card.getValue();
+         pendingChoice = CardChoice.NONE;
         return card;
     }
     
