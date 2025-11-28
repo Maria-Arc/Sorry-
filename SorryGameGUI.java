@@ -10,7 +10,7 @@ public class SorryGameGUI extends JFrame
 {
     private GamePanel gamePanel;
     private ControlPanel controlPanel;
-    private Game game;
+    private Game2 game;
     private int numPlayers;
     
     public SorryGameGUI() 
@@ -25,10 +25,10 @@ public class SorryGameGUI extends JFrame
         {
             System.exit(0); //user cancelled
         }
-        game = new Game(numPlayers);
+        game = new Game2(numPlayers);
         
         //we gonna set up two main panels. The first one is the board on the left. the second one is the controls on the right
-        gamePanel= new GamePanel(game);
+        gamePanel= new GamePanel(game, numPlayers);
         controlPanel = new ControlPanel(game, gamePanel);
         
         add(gamePanel, BorderLayout.CENTER);
@@ -41,11 +41,11 @@ public class SorryGameGUI extends JFrame
 
     private int showPlayerSelectionDialog()
     {
-        Object[] options = {"2 PLayers", "3 Players", "4 Players"};
+        Object[] options = {"2 Players", "3 Players", "4 Players"};
 
         int choice = JOptionPane.showOptionDialog(
             null,
-            "How many Players?\n\nUnselecred colors shalt be disabled.",
+            "How many Players?\n\nExtra colors shalt be disabled.",
             "Player Selection",
             JOptionPane.DEFAULT_OPTION,
             JOptionPane.QUESTION_MESSAGE,
@@ -77,7 +77,7 @@ public class SorryGameGUI extends JFrame
 //this will draw the game board and handle pawn selection
 class GamePanel extends JPanel 
 {
-    private Game game;
+    private Game2 game;
     private BufferedImage boardImage;   //board picture
     private static int  boardSize = 800;
     private static int pawnSize  = 20;
@@ -88,19 +88,33 @@ class GamePanel extends JPanel
     private Point[][] startAreas;   //pawn starting point
     
     //this will map each player color t oactual RGB color valus
-    private static final Map<Player.Color, Color> colors = new HashMap<>();
-    static 
-    {
-        colors.put(Player.Color.RED, new Color(200, 50, 30));      // Red
-        colors.put(Player.Color.BLUE, new Color(60, 130, 220));    // Blue
-        colors.put(Player.Color.YELLOW, new Color(255, 215, 0));   // Yellow
-        colors.put(Player.Color.GREEN, new Color(80, 180, 100));   // Green
-    }
+    // private static final Map<Player.Color, Color> colors = new HashMap<>();
+    // static 
+    // {
+    //     colors.put(Player.Color.RED, new Color(200, 50, 30));      // Red
+    //     colors.put(Player.Color.BLUE, new Color(60, 130, 220));    // Blue
+    //     colors.put(Player.Color.YELLOW, new Color(255, 215, 0));   // Yellow
+    //     colors.put(Player.Color.GREEN, new Color(80, 180, 100));   // Green
+    // }
+
+      //this will map each player color t oactual RGB color valus
+    private final Map<Player.Color, Color> colors = new HashMap<>();
+   
+    
     
     private Pawn selectedPawn = null;   //currently selected pawn
     
-    public GamePanel(Game game) 
+    public GamePanel(Game2 game, int numPlayers) 
     {
+        colors.put(Player.Color.RED, new Color(200, 50, 30));      // Red
+        colors.put(Player.Color.BLUE, new Color(60, 130, 220)); 
+
+        if (numPlayers == 3)
+            colors.put(Player.Color.YELLOW, new Color(255, 215, 0));   // Yellow
+        else if (numPlayers == 4)
+            colors.put(Player.Color.YELLOW, new Color(255, 215, 0));
+            colors.put(Player.Color.GREEN, new Color(80, 180, 100));   // Green
+
         this.game = game;
         setPreferredSize(new Dimension(boardSize, boardSize)); //set panel size (w, h)
         setBackground(Color.WHITE);
@@ -118,7 +132,7 @@ class GamePanel extends JPanel
         });
     }
     
-    //load board image TODO: MAybe get rid of and just load
+    //load board image  MAybe get rid of and just load
     private void loadBoardImage() 
     {
         try 
@@ -171,15 +185,16 @@ class GamePanel extends JPanel
         Point temp = new Point(outerPath[17].getLocation());
         //home paths -> the safe spaces leading to home (6 spaces)
         //reds home path horizontal going right
+
         //wrong this is blues home path
         for (int i = 0;i <6; i++) 
         {
             //homePath[0][i] = new Point(150 + i * 40, 650);
             
             if ( i == 5)
-                homePath[0][i] = new Point( (int)temp.getX() + (i+1) * 50, (int)temp.getY() );
+                homePath[1][i] = new Point( (int)temp.getX() + (i+1) * 50, (int)temp.getY() );
             else
-               homePath[0][i] = new Point( (int)temp.getX() + (i+1) * 46, (int)temp.getY() );
+               homePath[1][i] = new Point( (int)temp.getX() + (i+1) * 46, (int)temp.getY() );
         }
         
         //blues home path, start at 17 and go up
@@ -187,9 +202,9 @@ class GamePanel extends JPanel
         temp = new Point(outerPath[2].getLocation());
         for (int i = 0; i < 6; i++) 
         {   if ( i == 5)
-                homePath[1][i] = new Point((int) temp.getX() , (int)temp.getY() -46 - i* 50);
+                homePath[0][i] = new Point((int) temp.getX() , (int)temp.getY() -46 - i* 50);
             else
-                 homePath[1][i] = new Point((int) temp.getX() , (int)temp.getY() -46 - i* 46);
+                 homePath[0][i] = new Point((int) temp.getX() , (int)temp.getY() -46 - i* 46);
         }
         
         //yellows home path horizontal going left
@@ -357,22 +372,20 @@ class GamePanel extends JPanel
         for (Player player : game.getPlayers()) //loop through each player
         {
             Color color =colors.get(player.getColor()); //get this player's color
-            boolean isActive = game.isPlayerActive(player);
-            if(isActive)
-            {
-                color = new Color(color.getRed(), color.getGreen(), color.getBlue(), 100); //will sort of fade colors
-            }
+           
+               // color = new Color(color.getRed(), color.getGreen(), color.getBlue(), 100); //will sort of fade colors
+        
             for (Pawn pawn : player.getPawns()) //draw each of this players pawns
             {
                 Point pos = getPawnPos(pawn);
                 if (pos != null) 
                 {
                     //draw shadow so it is easier to identify
-                    if(isActive)
-                    {
-                        g2.setColor(color.darker());
-                    }
-                    else
+                    // if(isActive)
+                    // {
+                    //     g2.setColor(color.darker());
+                    // }
+                    // else
                     {
                         g2.setColor(new Color (0, 0, 0,5));
                     }
@@ -383,7 +396,7 @@ class GamePanel extends JPanel
                     g2.fillOval(pos.x - pawnSize/2, pos.y - pawnSize/2, pawnSize, pawnSize);
 
                     //add highlight gives a 3d effect
-                    if(isActive)
+                    //if(isActive)
                     {    
                         g2.setColor(color.brighter());
                         g2.fillOval(pos.x- pawnSize/2 + 3,pos.y -pawnSize/2 + 3, pawnSize/3, pawnSize/3);
@@ -446,7 +459,7 @@ class GamePanel extends JPanel
 //control paenl on right side w/ btns and game log
 class ControlPanel extends JPanel 
 {
-    private Game game;
+    private Game2 game;
     private GamePanel gamePanel;
     private JButton drawCardBtn;
     private JButton movePawnBtn;
@@ -460,7 +473,7 @@ class ControlPanel extends JPanel
     
 
     //panel with buttons and game log on right side  
-    public ControlPanel(Game game, GamePanel gamePanel) 
+    public ControlPanel(Game2 game, GamePanel gamePanel) 
     {
         this.game = game;
         this.gamePanel = gamePanel;
@@ -566,30 +579,24 @@ class ControlPanel extends JPanel
     //handles draw card button click
     private void drawCard() 
     {
-        CardDeck.Card currCard = game.drawCard();
+        CardDeck.Card currcard = game.drawCard();
         String text;
  
-        text = currCard.toString(); 
+        text = currcard.toString(); 
+        currCard = currcard.getValue();
 
 
    
         currCardLabel.setText("<html>"
             + "<div style='text-align:center; width:150px;'>"
-            + "<div style='font-size:15pt; display:inline-block; margin:0; padding:0;'>" + currCard.rule + "</div>"
+            + "<div style='font-size:15pt; display:inline-block; margin:0; padding:0;'>" + currcard.getRule() + "</div>"
             + "<div style='font-size:60pt; margin:0; padding:0;'>" + text + "</div>"
             + "</div>"
             + "</html>");
 
 
 
-
-     
-
-
-        //TODO: change the label and add rules
-
-
-        if (currCard.getValue() == 0) 
+        if (currcard.getValue() == 0) 
         {
             currCardLabel.setForeground(Color.RED);
         } 
@@ -602,7 +609,7 @@ class ControlPanel extends JPanel
         
 
         //check if player can from from START. can only leave with 1, 2, or SORRY (0)
-        if(currCard.getValue() != 1 && currCard.getValue() != 2 && currCard.getValue() != 0)
+        if(currcard.getValue() != 1 && currcard.getValue() != 2 && currcard.getValue() != 0)
         {
             boolean allInStart = true;
             for(Pawn pawn : game.getCurrentPlayer().getPawns())
@@ -679,14 +686,14 @@ class ControlPanel extends JPanel
         
         movePawnBtn.setEnabled(false);
     }
-    
+
 
     private void handleCardChoice(Pawn pawn)
     {
-        Game.CardChoice choice = game.getPendingChoice();
+        Game2.CardChoice choice = game.getPendingChoice();
         switch (choice)
         {
-            case SORRY_START_OR_SWAP:
+            case SORRY:
                 handleSorryChoice(pawn);
                 break;
             case TEN_FORWARD_OR_BACK:

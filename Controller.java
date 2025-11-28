@@ -1,8 +1,9 @@
 import java.util.HashMap;
+//import java.util.Scanner;
 
 public class Controller {
 
-// Hold players, deck, and board
+
 // Runs the game loop
 // Keeps track of whose turn
 // Draws card
@@ -15,9 +16,10 @@ public class Controller {
     CardDeck deck;
     Board board;
     Player[] players;
+    boolean win = false;
 
     public Controller(int numPlayers){
-        Player.Color[] options = {RED, BLUE, GREEN, YELLOW};
+        Player.Color[] options = {Player.Color.RED, Player.Color.BLUE, Player.Color.GREEN, Player.Color.YELLOW};
         
         players = new Player[numPlayers];
         for (int i = 0; i < numPlayers; i++)
@@ -57,5 +59,50 @@ public class Controller {
     }
    }
 
+   //bruh need to handle outercase, inner case kms
+   void move(Pawn pawn, CardDeck.Card card){
+    int index = pawn.getIndex();
+    int nextIndex = index + card.getValue();
+    if (canSlide(pawn, nextIndex)){
+        //slide
+    }
+    else{
+
+    }
+
+   }
+
+   //if a 1/2 can select any pawn, else can only select pawns outside or loose turn
+   void play(Player player){
+    CardDeck.Card drawn = deck.Draw();
+    int p = drawn.getValue();
+    System.out.println("Move " + p);
+    System.out.println("Pawn positions");
+        System.out.print("Pawn 0" + (player.getPawn(0)).getIndex()  );
+        System.out.print("Pawn 1" + (player.getPawn(1)).getIndex()  );
+        System.out.print("Pawn 2" + (player.getPawn(2)).getIndex()  );
+        System.out.println("Pawn 3" + (player.getPawn(3)).getIndex()  );
+    //Scanner sc = new Scanner(System.in);
+    System.out.println("pick a pawn");
+   // p = sc.nextInt();
+    Pawn pawn = player.getPawn(p);
+    
+    //need to add like a move
+    move(pawn,drawn);
+
+   }
+
+   void runGame(){
+       while (!win){
+
+        System.out.print("player one started");
+
+
+
+
+
+       }
+
+   }
 
 }

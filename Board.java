@@ -52,6 +52,11 @@ public class Board {
         }
 
     }
+
+    public void movePawnStart(Pawn p){
+        p.setState(Pawn.State.START);
+        p.setIndex(-1);
+    }
     
 
     public boolean isOuterSlotEmpty(int index){

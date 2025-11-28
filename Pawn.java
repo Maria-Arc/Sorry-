@@ -7,9 +7,11 @@ public class Pawn {
         private State state = State.START;
         private int index = -1;
         private Player owner;
+        private int pawnId;
 
-        public Pawn(Player o){
+        public Pawn(Player o, int i){
             owner = o;
+            pawnId = i;
         }
 
         public State getState(){ return state; }
