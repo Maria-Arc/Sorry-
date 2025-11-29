@@ -5,9 +5,9 @@ public class Player {
     private int playerId;
     private Color color;
 
-    Player(int id, Color c){
+    Player(int id, Player.Color c,  int numPawns){
         playerId = id;
-        for (int i = 0; i < 4; i++){
+        for (int i = 0; i < numPawns; i++){
             pawns[i] = new Pawn(this, i);
         }
         color = c;

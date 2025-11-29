@@ -5,7 +5,6 @@ public class Game2 {
     private Player[] players;
     private Board board;
     private CardDeck deck;
-    private Controller controller;
     private int currentPlayerIndex = 0;
     private int currentCardValue = -1;
     private Pawn selectedPawn = null;
@@ -22,7 +21,7 @@ public class Game2 {
     
     private CardChoice pendingChoice = CardChoice.NONE;
     
-    public Game2(int numPlayers) { 
+    public Game2(int numPlayers, int numPawns) { 
         numberPlayers = numPlayers;
         players = new Player[numPlayers]; // Always create 4 players
         
@@ -32,7 +31,7 @@ public class Game2 {
         
         // Initialize all players but mark only the selected ones as active
         for (int i = 0; i < numPlayers; i++) {
-            players[i] = new Player(i, colors[i]);
+            players[i] = new Player(i, colors[i], numPawns);
         }
         
         board = new Board(numPlayers); // Board always has 4 home paths
