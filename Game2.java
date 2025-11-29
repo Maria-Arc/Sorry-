@@ -10,6 +10,8 @@ public class Game2 {
     private Pawn selectedPawn = null;
     private int numberPlayers;
     private HashMap<Integer, Player.Color>slide = new HashMap<>();   
+
+    //TODO: make the card backround the player
     
     // For card choices
     public enum CardChoice {
@@ -23,7 +25,7 @@ public class Game2 {
     
     public Game2(int numPlayers, int numPawns) { 
         numberPlayers = numPlayers;
-        players = new Player[numPlayers]; // Always create 4 players
+        players = new Player[numPlayers]; 
         
         
         Player.Color[] colors = {Player.Color.RED, Player.Color.BLUE, 

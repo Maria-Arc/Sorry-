@@ -1,16 +1,19 @@
 public class Player {
     public enum Color { RED, BLUE, GREEN, YELLOW }
 
-    private Pawn[] pawns = new Pawn[4];
+    private Pawn[] pawns;
     private int playerId;
     private Color color;
+    int numberPawns;
 
     Player(int id, Player.Color c,  int numPawns){
+        pawns = new Pawn[numPawns];
         playerId = id;
         for (int i = 0; i < numPawns; i++){
             pawns[i] = new Pawn(this, i);
         }
         color = c;
+        numberPawns = numPawns;
     }
 
     public Pawn[] getPawns() {
