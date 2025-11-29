@@ -12,6 +12,7 @@ public class SorryGameGUI extends JFrame
     private ControlPanel controlPanel;
     private Game2 game;
     private int numPlayers;
+    private int numPawns;
     
     public SorryGameGUI() 
     {
@@ -25,7 +26,12 @@ public class SorryGameGUI extends JFrame
         {
             System.exit(0); //user cancelled
         }
-        game = new Game2(numPlayers);
+        numPawns = showPawnSelectionDialog();
+        if(numPawns ==-1)
+        {
+            System.exit(0);
+        }
+        game = new Game2(numPlayers, numPawns);
         
         //we gonna set up two main panels. The first one is the board on the left. the second one is the controls on the right
         gamePanel= new GamePanel(game, numPlayers);
@@ -43,16 +49,7 @@ public class SorryGameGUI extends JFrame
     {
         Object[] options = {"2 Players", "3 Players", "4 Players"};
 
-        int choice = JOptionPane.showOptionDialog(
-            null,
-            "How many Players?\n\nExtra colors shalt be disabled.",
-            "Player Selection",
-            JOptionPane.DEFAULT_OPTION,
-            JOptionPane.QUESTION_MESSAGE,
-            null,
-            options,
-            options[0]
-        );
+        int choice = JOptionPane.showOptionDialog(null,"How many Players?\n\nExtra colors shalt be disabled.","Player Selection",JOptionPane.DEFAULT_OPTION,JOptionPane.QUESTION_MESSAGE,null,options,options[0]);
     
 
         switch(choice)
@@ -62,6 +59,25 @@ public class SorryGameGUI extends JFrame
             case 1:
                 return 3;
            case 2: 
+                return 4;
+            default:
+                return -1;
+        }
+    }   
+    private int showPawnSelectionDialog()
+    {
+        Object[] options  = {"1 Pawn","2 Pawns", "3 Pawns", "4 Pawns"};
+        int choice = JOptionPane.showOptionDialog(null, "How many pawns per player?\n\n", "Pawn Selection", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[3]);
+        
+        switch(choice)
+        {
+            case 0:
+                return 1;
+            case 1:
+                return 2;
+            case 2:
+                return 3;
+            case 3:
                 return 4;
             default:
                 return -1;
