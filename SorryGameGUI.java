@@ -213,9 +213,9 @@ class GamePanel extends JPanel
         temp = new Point(outerPath[47].getLocation());
         for (int i = 0; i < 6; i++) 
         {   if ( i == 5)
-                homePath[2][i] = new Point((int) temp.getX()-46 - i* 50 , (int)temp.getY() );
+                homePath[3][i] = new Point((int) temp.getX()-46 - i* 50 , (int)temp.getY() );
             else
-                 homePath[2][i] = new Point((int) temp.getX() -46 - i* 46 , (int)temp.getY());
+                 homePath[3][i] = new Point((int) temp.getX() -46 - i* 46 , (int)temp.getY());
         }
         
         //greens home path start and 47 go down
@@ -223,9 +223,9 @@ class GamePanel extends JPanel
         temp = new Point(outerPath[32].getLocation());
         for (int i = 0; i < 6; i++) 
         {   if ( i == 5)
-                homePath[3][i] = new Point((int) temp.getX() , (int)temp.getY() +46 + i* 50);
+                homePath[2][i] = new Point((int) temp.getX() , (int)temp.getY() +46 + i* 50);
             else
-                 homePath[3][i] = new Point((int) temp.getX() , (int)temp.getY() +46 + i* 46);
+                 homePath[2][i] = new Point((int) temp.getX() , (int)temp.getY() +46 + i* 46);
         }
         
         //start areas/where the pawns begin
