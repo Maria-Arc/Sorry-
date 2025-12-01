@@ -601,16 +601,16 @@ class ControlPanel extends JPanel
          switch(game.getCurrentPlayer().getColor())
         {
             case Player.Color.GREEN:
-                cardBox.setBackground(Color.GREEN);
+                cardBox.setBackground(new Color(127, 248, 131));
                 break;
             case Player.Color.RED:
-                cardBox.setBackground(Color.RED);
+                cardBox.setBackground(new Color(247, 137, 140));
                 break;
             case Player.Color.YELLOW:
-                cardBox.setBackground(Color.YELLOW);
+                cardBox.setBackground(new Color(245, 239, 158));
                 break;
             case Player.Color.BLUE:
-                cardBox.setBackground(Color.BLUE);
+                cardBox.setBackground(new Color(98, 155, 237));
                 break;
         }
         cardBox.repaint();
