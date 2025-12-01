@@ -496,7 +496,7 @@ class ControlPanel extends JPanel
         cardBox = new JPanel();
         //cardBox.setLayout(new BorderLayout());
         cardBox.setMaximumSize(new Dimension(250, 120));
-        cardBox.setBackground(new Color(247, 137, 140));
+        cardBox.setBackground(new Color(246, 82, 80));
         
         currCardLabel = new JLabel("Draw a card");
         currCardLabel.setFont(new Font("Arial", Font.BOLD, 42));
