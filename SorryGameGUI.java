@@ -657,7 +657,7 @@ class ControlPanel extends JPanel
         //checks start rule - can only leave start area with 1, 2, or sorry
         if(pawn.getState() == Pawn.State.START)
         {
-            if(currCard != 1 && currCard != 2 && currCard != 0)
+            if(currCard != 1 && currCard != 2&& currCard != 0)
             {
                 log.append("cant leave start with " + currCard + ".\n");
                 JOptionPane.showMessageDialog(this, "can only leave start with a 1 or 2 card");
@@ -669,7 +669,6 @@ class ControlPanel extends JPanel
                 log.append("No valid moves possible. You can end turn.\n");
                 endTurnBtn.setEnabled(true);
             }*/
-            return;
         }
         boolean success= game.movePawn(pawn);
         
@@ -704,6 +703,7 @@ class ControlPanel extends JPanel
             //show error popup
             JOptionPane.showMessageDialog(this, "cannot move that pawn with this card.");
         }
+        movePawnBtn.setEnabled(false);
     }
 
 
@@ -906,7 +906,6 @@ class ControlPanel extends JPanel
     //handles end turn button
     private void endTurn() 
     {
-        
         game.nextTurn();
         currCard = -1;
         log.append("----------------\n");
@@ -925,6 +924,5 @@ class ControlPanel extends JPanel
         //clear selection
         gamePanel.setSelectedPawn(null);
         gamePanel.refresh();
-        gamePanel.revalidate();
     }
 }
