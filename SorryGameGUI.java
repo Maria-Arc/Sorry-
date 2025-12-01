@@ -598,7 +598,22 @@ class ControlPanel extends JPanel
         {
             currCardLabel.setForeground(Color.BLACK);
         }
-        
+         switch(game.getCurrentPlayer().getColor())
+        {
+            case Player.Color.GREEN:
+                cardBox.setBackground(new Color(127, 248, 131));
+                break;
+            case Player.Color.RED:
+                cardBox.setBackground(new Color(247, 137, 140));
+                break;
+            case Player.Color.YELLOW:
+                cardBox.setBackground(new Color(245, 239, 158));
+                break;
+            case Player.Color.BLUE:
+                cardBox.setBackground(new Color(98, 155, 237));
+                break;
+        }
+        cardBox.repaint();
         log.append(game.getCurrentPlayer().getColor() + " drew: " + text + "\n");
         
 
@@ -850,43 +865,25 @@ class ControlPanel extends JPanel
             {
                 log.append("Click an opp pawn to swap with.\n");
                 myPawnSwap = pawn;
-                gamePanel.setOppClickListener(new GamePanel.OppClickListener()
-                {
-                    public void onOpponentClicked(Pawn opponentPawn)
+                gamePanel.setOppClickListener(opponentPawn -> {
+                    if (opponentPawn.getOwner() != game.getCurrentPlayer()) 
                     {
-                        if (opponentPawn.getOwner() != game.getCurrentPlayer()) 
+                        if (game.swapWithOpponent(myPawnSwap, opponentPawn)) 
                         {
-                            if (game.swapWithOpponent(myPawnSwap, opponentPawn)) 
-                            {
-                                log.append("Swapped with opp!\n");
-                                gamePanel.refresh();
-                                movePawnBtn.setEnabled(false);
-                                gamePanel.setOppClickListener(null);
-                                myPawnSwap = null;
-                            } 
-                            else 
-                            {
-                                log.append("Swap failed!\n");
-                            }
+                            log.append("Swapped with opp!\n");
+                            gamePanel.refresh();
+                            movePawnBtn.setEnabled(false);
+                            gamePanel.setOppClickListener(null);
+                            myPawnSwap = null;
                         } 
                         else 
                         {
-                            log.append("Must click an opp pawn!\n");
-  switch(game.getCurrentPlayer().getColor())
-        {
-            case Player.Color.GREEN:
-                cardBox.setBackground(new Color(127, 248, 131));
-                break;
-            case Player.Color.RED:
-                cardBox.setBackground(new Color(247, 137, 140));
-                break;
-            case Player.Color.YELLOW:
-                cardBox.setBackground(new Color(245, 239, 158));
-                break;
-            case Player.Color.BLUE:
-                cardBox.setBackground(new Color(98, 155, 237));
-                break;
-        }                        }
+                            log.append("Swap failed!\n");
+                        }
+                    } 
+                    else 
+                    {
+                        log.append("Must click an opp pawn!\n");
                     }
                 });
             }
