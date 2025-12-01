@@ -377,9 +377,6 @@ class GamePanel extends JPanel
        
         //draw pawns on top
         drawPawns(g2);
-
-        //show whose turn it is
-        showCurrPlayer(g2);
     }
       
     //draw pawns on da board
@@ -436,27 +433,6 @@ class GamePanel extends JPanel
         }
     }
     
-    //show whose turn it is in corner 
-    private void showCurrPlayer(Graphics2D g2)
-    {
-        Player curr = game.getCurrentPlayer();
-        Color color = colors.get(curr.getColor());
-
-        //draw colored rectangle
-        g2.setColor(color);
-        g2.fillRoundRect(10, 10, 180, 45,10,10);
-
-        //draw border
-        g2.setColor(Color.BLACK);
-        g2.drawRoundRect(10, 10, 180, 45, 10, 10);
-
-        //draw text
-        g2.setColor(Color.WHITE);
-        g2.setFont(new Font("Arial", Font.BOLD, 17));
-        g2.drawString("Current: "+ curr.getColor(), 20, 38);
-
-    }
-    
     //refresh display
     public void refresh() 
     {
@@ -483,9 +459,12 @@ class ControlPanel extends JPanel
     private JTextArea log;
     private JLabel currCardLabel;
     private int currCard = -1;
+    private JPanel cardBox;
     
     private boolean waitingForOppSwap = false;
-    private Pawn myPawnSwap = null;
+    private Pawn myPawnSwap = null;     //TODO: 
+
+    private boolean isMoveMade = false;
     
 
     //panel with buttons and game log on right side  
@@ -514,14 +493,14 @@ class ControlPanel extends JPanel
         add(Box.createVerticalStrut(20));   //for spacing 
         
         //card display box
-        JPanel cardBox = new JPanel();
+        cardBox = new JPanel();
         //cardBox.setLayout(new BorderLayout());
         cardBox.setMaximumSize(new Dimension(250, 120));
-        cardBox.setBackground(Color.WHITE);
+        cardBox.setBackground(new Color(247, 137, 140));
         
         currCardLabel = new JLabel("Draw a card");
         currCardLabel.setFont(new Font("Arial", Font.BOLD, 42));
-        //currCardLabel.setHorizontalAlignment(SwingConstants.CENTER);
+       
         cardBox.add(currCardLabel);
         add(cardBox);
         add(Box.createVerticalStrut(20));   //for spacing
@@ -595,13 +574,13 @@ class ControlPanel extends JPanel
     //handles draw card button click
     private void drawCard() 
     {
+        
         CardDeck.Card currcard = game.drawCard();
         String text;
  
         text = currcard.toString(); 
         currCard = currcard.getValue();
-
-
+        
    
         currCardLabel.setText("<html>"
             + "<div style='text-align:center; width:150px;'>"
@@ -609,7 +588,6 @@ class ControlPanel extends JPanel
             + "<div style='font-size:60pt; margin:0; padding:0;'>" + text + "</div>"
             + "</div>"
             + "</html>");
-
 
 
         if (currcard.getValue() == 0) 
@@ -641,6 +619,8 @@ class ControlPanel extends JPanel
                 log.append("Cannot leave START with " + text + ". Need 1 or 2.\n");
             }
         }
+
+        isMoveMade = true;
         drawCardBtn.setEnabled(false);
         movePawnBtn.setEnabled(true);
         endTurnBtn.setEnabled(true);
@@ -651,7 +631,7 @@ class ControlPanel extends JPanel
     {
         if (game.getSelectedPawn()== null) 
         {
-            log.append("Error: Select pwan first\n");
+            log.append("Error: Select pawn first\n");
 
             //show popup message. I swear we cannot have this many 
             JOptionPane.showMessageDialog(this, "click on pawn first");
@@ -662,15 +642,21 @@ class ControlPanel extends JPanel
         //checks start rule - can only leave start area with 1, 2, or sorry
         if(pawn.getState() == Pawn.State.START)
         {
-            if(currCard != 1 && currCard != 2 && currCard != 0)
+            if(currCard != 1 && currCard != 2&& currCard != 0)
             {
                 log.append("cant leave start with " + currCard + ".\n");
-                JOptionPane.showMessageDialog(this, "can only leave start with a 1, 2, or SORRY! card");
+                JOptionPane.showMessageDialog(this, "can only leave start with a 1 or 2 card");
                 return;
             }
+
+            /*//check for valid move TODO: function 
+            {
+                log.append("No valid moves possible. You can end turn.\n");
+                endTurnBtn.setEnabled(true);
+            }*/
         }
         boolean success= game.movePawn(pawn);
-
+        
         //check if card requires a choice
         if(game.hasPendingChoice())
         {
@@ -681,6 +667,8 @@ class ControlPanel extends JPanel
         {
             log.append("Pawn moved\n");
             gamePanel.refresh();
+            isMoveMade = true;
+            //movePawnBtn.setEnabled(false);
             
             //check for win
             if (game.isGameOver()) 
@@ -691,6 +679,7 @@ class ControlPanel extends JPanel
                 //show win popup
                 JOptionPane.showMessageDialog(this, winner.getColor() + " wins!");
             }
+            //movePawnBtn.setEnabled(false);
         } 
         else 
         {
@@ -699,7 +688,6 @@ class ControlPanel extends JPanel
             //show error popup
             JOptionPane.showMessageDialog(this, "cannot move that pawn with this card.");
         }
-        
         movePawnBtn.setEnabled(false);
     }
 
@@ -760,33 +748,37 @@ class ControlPanel extends JPanel
         {
             log.append("Click an opponent pawn to bump and take their spot\n");
             myPawnSwap = pawn;
-            gamePanel.setOppClickListener(opponentPawn -> {
-                if(opponentPawn.getOwner() != game.getCurrentPlayer() && opponentPawn.getState() == Pawn.State.MAIN)
+            gamePanel.setOppClickListener(new GamePanel.OppClickListener()
+            {
+                public void onOpponentClicked(Pawn opponentPawn)
                 {
-                    //get opponent pos
-                    int targetPos = opponentPawn.getIndex();
-
-                    //send opponent back to start
-                    opponentPawn.setState(Pawn.State.START);
-                    opponentPawn.setIndex(-1);
-
-                    //move pawn to their pos
-                    if(game.getBoard().movePawnOuter(myPawnSwap, targetPos))
+                    if(opponentPawn.getOwner() != game.getCurrentPlayer() && opponentPawn.getState() == Pawn.State.MAIN)
                     {
-                        log.append("Moved from START and bumped opponent\n");
-                        gamePanel.refresh();
-                        movePawnBtn.setEnabled(false);
-                        gamePanel.setOppClickListener(null);
-                        myPawnSwap = null;
+                        //get opponent pos
+                        int targetPos = opponentPawn.getIndex();
+
+                        //send opponent back to start
+                        opponentPawn.setState(Pawn.State.START);
+                        opponentPawn.setIndex(-1);
+
+                        //move pawn to their pos
+                        if(game.getBoard().movePawnOuter(myPawnSwap, targetPos))
+                        {
+                            log.append("Moved from START and bumped opponent\n");
+                            gamePanel.refresh();
+                            movePawnBtn.setEnabled(false);
+                            gamePanel.setOppClickListener(null);
+                            myPawnSwap = null;
+                        }
+                        else
+                        {
+                            log.append("Move failed\n");
+                        }
                     }
                     else
                     {
-                        log.append("Move failed\n");
+                        log.append("Must click an opponent pawn on the board\n");
                     }
-                }
-                else
-                {
-                    log.append("Must click an opponent pawn on the board\n");
                 }
             });
         }
@@ -803,14 +795,7 @@ class ControlPanel extends JPanel
     }
     private void handleTenChoice(Pawn pawn) 
     {
-        int choice = JOptionPane.showOptionDialog(this,
-            "Card 10 -Choose:",
-            "Card 10",
-            JOptionPane.YES_NO_OPTION,
-            JOptionPane.QUESTION_MESSAGE,
-            null,
-            new String[]{"Forward 10", "Backward 1"},
-            "Forward 10");
+        int choice = JOptionPane.showOptionDialog(this,"Card 10 -Choose:","Card 10",JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE,null,new String[]{"Forward 10", "Backward 1"},"Forward 10");
         boolean success;
         if(choice == 0)
         {
@@ -850,14 +835,7 @@ class ControlPanel extends JPanel
         
         if (hasOpponent) 
         {
-            int choice = JOptionPane.showOptionDialog(this,
-                "Card 11 - Choose your move:",
-                "Card 11",
-                JOptionPane.YES_NO_CANCEL_OPTION,
-                JOptionPane.QUESTION_MESSAGE,
-                null,
-                new String[]{"Forward 11", "Swap with Opponent", "Cancel"},
-                "Forward 11");
+            int choice = JOptionPane.showOptionDialog(this, "Card 11 - Choose your move:","Card 11",JOptionPane.YES_NO_CANCEL_OPTION,JOptionPane.QUESTION_MESSAGE,null,new String[]{"Forward 11", "Swap with Opponent", "Cancel"},"Forward 11");
                 
             if (choice == 0) 
             {
@@ -872,25 +850,43 @@ class ControlPanel extends JPanel
             {
                 log.append("Click an opp pawn to swap with.\n");
                 myPawnSwap = pawn;
-                gamePanel.setOppClickListener(opponentPawn -> {
-                    if (opponentPawn.getOwner() != game.getCurrentPlayer()) 
+                gamePanel.setOppClickListener(new GamePanel.OppClickListener()
+                {
+                    public void onOpponentClicked(Pawn opponentPawn)
                     {
-                        if (game.swapWithOpponent(myPawnSwap, opponentPawn)) 
+                        if (opponentPawn.getOwner() != game.getCurrentPlayer()) 
                         {
-                            log.append("Swapped with opp!\n");
-                            gamePanel.refresh();
-                            movePawnBtn.setEnabled(false);
-                            gamePanel.setOppClickListener(null);
-                            myPawnSwap = null;
+                            if (game.swapWithOpponent(myPawnSwap, opponentPawn)) 
+                            {
+                                log.append("Swapped with opp!\n");
+                                gamePanel.refresh();
+                                movePawnBtn.setEnabled(false);
+                                gamePanel.setOppClickListener(null);
+                                myPawnSwap = null;
+                            } 
+                            else 
+                            {
+                                log.append("Swap failed!\n");
+                            }
                         } 
                         else 
                         {
-                            log.append("Swap failed!\n");
-                        }
-                    } 
-                    else 
-                    {
-                        log.append("Must click an opp pawn!\n");
+                            log.append("Must click an opp pawn!\n");
+  switch(game.getCurrentPlayer().getColor())
+        {
+            case Player.Color.GREEN:
+                cardBox.setBackground(new Color(127, 248, 131));
+                break;
+            case Player.Color.RED:
+                cardBox.setBackground(new Color(247, 137, 140));
+                break;
+            case Player.Color.YELLOW:
+                cardBox.setBackground(new Color(245, 239, 158));
+                break;
+            case Player.Color.BLUE:
+                cardBox.setBackground(new Color(98, 155, 237));
+                break;
+        }                        }
                     }
                 });
             }
@@ -918,6 +914,21 @@ class ControlPanel extends JPanel
         //reset display
         currCardLabel.setText("Draw a card");
         currCardLabel.setForeground(Color.BLACK);
+          switch(game.getCurrentPlayer().getColor())
+        {
+            case Player.Color.GREEN:
+                cardBox.setBackground(new Color(127, 248, 131));
+                break;
+            case Player.Color.RED:
+                cardBox.setBackground(new Color(247, 137, 140));
+                break;
+            case Player.Color.YELLOW:
+                cardBox.setBackground(new Color(245, 239, 158));
+                break;
+            case Player.Color.BLUE:
+                cardBox.setBackground(new Color(98, 155, 237));
+                break;
+        }
         
         //reset buttons
         drawCardBtn.setEnabled(true);
