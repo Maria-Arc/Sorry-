@@ -616,12 +616,12 @@ class ControlPanel extends JPanel
             if (!game.canMove(game.getCurrentPlayer()) )
             {
                 log.append("No valid moves possible. You can end turn.\n");
-                movePawnBtn.setEnabled(false);
-                endTurnBtn.setEnabled(true);
+                // movePawnBtn.setEnabled(false);
+                // endTurnBtn.setEnabled(true);
             }
             else{
-                movePawnBtn.setEnabled(true);
-                endTurnBtn.setEnabled(false);
+                // movePawnBtn.setEnabled(true);
+                // endTurnBtn.setEnabled(false);
             }
             
         log.append(game.getCurrentPlayer().getColor() + " drew: " + text + "\n");
@@ -725,6 +725,9 @@ class ControlPanel extends JPanel
             case 0:
                 handleSorryChoice(pawn);
                 break;
+            case 3:
+                handleSeven(pawn);
+                break;
             case 4:
                 handleTenChoice(pawn);
                 break;
@@ -735,9 +738,78 @@ class ControlPanel extends JPanel
                 break;
         }
     }
+    
+    //function to handle 7
+    private void handleSeven(Pawn pawn1)
+    {
+        String[] options = {"Move 7", "1 and 6", "2 and 5", "3 and 4", "4 and 3", "5 and 2", "6 and 1"};
+        int choice = JOptionPane.showOptionDialog(this, "How do you want to use 7?", "Card 7", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
 
+        if(choice == -1)
+        {
+            return;
+        }
 
-    //TODO: move this to backend
+        if(choice == 0)
+        {
+            Pawn tempPawn = null;
+            for(Pawn p : game.getCurrentPlayer().getPawns())
+            {
+                if(p != pawn1)
+                {
+                    tempPawn = p;
+                    break;
+                }
+            }
+
+            if(game.card7(pawn1, tempPawn, 7))
+            {
+                log.append("Moved 7 spaces\n");
+                gamePanel.refresh();
+                movePawnBtn.setEnabled(false);
+            }
+            else
+            {
+                log.append("Invalid move\n");
+            }
+            return;
+        }
+
+        int firstMove = choice;
+        int secondMove = 7 - firstMove;
+
+        log.append("Click second pawn to move "+secondMove +"spaces\n");
+
+        gamePanel.setOppClickListener(new GamePanel.OppClickListener() {
+            public void onOpponentClicked(Pawn pawn2)
+            {
+                if(pawn2.getOwner() != game.getCurrentPlayer())
+                {
+                    log.append("Click on your own pawn\n");
+                    return;
+                }
+                if(pawn2 == pawn1)
+                {
+                    log.append("Click on another pawn\n");
+                    return;
+                }
+                if(game.card7(pawn1, pawn2, firstMove))
+                {
+                    log.append("Moved "+firstMove+ " and "+secondMove +"\n");
+                    gamePanel.refresh();
+                    movePawnBtn.setEnabled(false);
+                }
+                else
+                {
+                    log.append("Invalid move\n");
+                }
+                gamePanel.setOppClickListener(null);
+
+            }
+            
+        });
+    }
+    
     private void handleSorryChoice(Pawn pawn)
     {
         boolean canStart;
