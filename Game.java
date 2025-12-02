@@ -509,20 +509,24 @@ public class Game {
                 break;
 
             case 11:
-                if (MoveForward(testPawn, 11, testBoard)) return true;
-
-                System.out.print("seeing if this is ever reached");
-
-                // Check if swap with any opponent pawn is possible
-                for (Player other : players) {
-                    if (other != p) {
-                        for (Pawn op : other.getPawns()) {
-                            Pawn testOp = new Pawn(op);
-                            if (swap(testPawn, testOp, testBoard)) return true;
-                        }
-                    }
+                for (Player ply : getPlayers()){
+                    if (anyInMain(ply)) return true;
+                    else return false;
                 }
-                break;
+                // if (MoveForward(testPawn, 11, testBoard)) return true;
+
+                // System.out.print("seeing if this is ever reached");
+
+                // // Check if swap with any opponent pawn is possible
+                // for (Player other : players) {
+                //     if (other != p) {
+                //         for (Pawn op : other.getPawns()) {
+                //             Pawn testOp = new Pawn(op);
+                //             if (swap(testPawn, testOp, testBoard)) return true;
+                //         }
+                //     }
+                // }
+                // break;
 
             case 0: // Sorry card
                 for (Player other : players) {
