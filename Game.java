@@ -183,6 +183,9 @@ public class Game {
             if (forward)
                 return MoveForward(p,11);
             else
+                if (p.getState() != Pawn.State.START) {
+                    return false;
+                }
                 return swap(p, p2);
         }
 
@@ -370,9 +373,7 @@ public class Game {
           if (opPawn.getState() != Pawn.State.MAIN) {
             return false;
         }
-        if (myPawn.getState() != Pawn.State.START) {
-            return false;
-        }
+
         
         if (opPawn.getOwner() == getCurrentPlayer()) {
             return false;
