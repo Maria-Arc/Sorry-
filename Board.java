@@ -108,6 +108,12 @@ public class Board {
         return false;
     }
 
+    public void movePawnHome(Pawn p){
+        outerPath[p.getIndex()] = null;
+        p.setIndex(-1);
+        p.setState(Pawn.State.HOME); 
+
+    }
 
 
 }

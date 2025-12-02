@@ -613,7 +613,6 @@ class ControlPanel extends JPanel
                 cardBox.setBackground(new Color(98, 155, 237));
                 break;
         }
-                           //check for valid move TODO: function 
             if (!game.canMove(game.getCurrentPlayer()) )
             {
                 log.append("No valid moves possible. You can end turn.\n");
@@ -736,6 +735,9 @@ class ControlPanel extends JPanel
                 break;
         }
     }
+
+
+    //TODO: move this to backend
     private void handleSorryChoice(Pawn pawn)
     {
         boolean canStart;
@@ -780,16 +782,23 @@ class ControlPanel extends JPanel
                 {
                     if(opponentPawn.getOwner() != game.getCurrentPlayer() && opponentPawn.getState() == Pawn.State.MAIN)
                     {
-                        //get opponent pos
-                        int targetPos = opponentPawn.getIndex();
+                        // //get opponent pos
+                        // int targetPos = opponentPawn.getIndex();
 
-                        //send opponent back to start
-                        opponentPawn.setState(Pawn.State.START);
-                        opponentPawn.setIndex(-1);
+                        // //send opponent back to start
+                        // opponentPawn.setState(Pawn.State.START);
+                        // opponentPawn.setIndex(-1);
 
-                        //move pawn to their pos
-                        if(game.getBoard().movePawnOuter(myPawnSwap, targetPos))
-                        {
+                        // //move pawn to their pos
+                        // if(game.getBoard().movePawnOuter(myPawnSwap, targetPos))
+                        // {
+                        //     log.append("Moved from START and bumped opponent\n");
+                        //     gamePanel.refresh();
+                        //     movePawnBtn.setEnabled(false);
+                        //     gamePanel.setOppClickListener(null);
+                        //     myPawnSwap = null;
+                        //}
+                        if (game.swap(pawn, opponentPawn)){
                             log.append("Moved from START and bumped opponent\n");
                             gamePanel.refresh();
                             movePawnBtn.setEnabled(false);

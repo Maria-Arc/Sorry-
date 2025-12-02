@@ -379,12 +379,22 @@ public class Game {
             return false;
         }
 
+        if (myPawn.getState() == Pawn.State.START){
+            int theirPos = opPawn.getIndex();
+            
+            board.movePawnOuter(myPawn, theirPos);
+            //board.movePawnHome(opPawn);
+        }
+        else{
+
+        
         // Swap positions
         int myPos = myPawn.getIndex();
         int theirPos = opPawn.getIndex();
         
         board.movePawnOuter(myPawn, theirPos);
         board.movePawnOuter(opPawn, myPos);
+        }
         
         needsChoice = -1;
 
@@ -482,8 +492,6 @@ public class Game {
                 // Only return true if MoveForward actually succeeds
                
                 if(!anyInMain(p)) return false;
-                return MoveForward(testPawn, currentCardValue, testBoard);
-  //TODO: maybe just have a func of max move and then compare move <= max move else false
 
             case 4:
                 if(allInStart()) return false;
