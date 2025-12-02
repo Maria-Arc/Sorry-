@@ -218,7 +218,7 @@ public class Game {
                 else if (spacesToHome < num){
                     int homeInd = num - spacesToHome -1;
                     if (homeInd > 5) return false;
-
+                    board.clearOuterPath(pawn);
                     board.movePawnInner(pawn, homeInd);
                     if (spacesToHome == 5)
                         pawn.setState(Pawn.State.FINISHED);
@@ -272,7 +272,7 @@ public class Game {
                 else if (spacesToHome < num){
                     int homeInd = num - spacesToHome -1;
                     if (homeInd > 5) return false;
-
+                    board.clearOuterPath(pawn);
                     b.movePawnInner(pawn, homeInd);
                     if (spacesToHome == 5)
                         pawn.setState(Pawn.State.FINISHED);
@@ -492,24 +492,36 @@ public class Game {
                 // Only return true if MoveForward actually succeeds
                
                 if(!anyInMain(p)) return false;
+                else return currentCardValue <= maxMove(pawn);
 
             case 4:
                 if(allInStart()) return false;
                 else return true;
 
             case 7:
-                // Check all combinations of splitting 7 between two pawns
-                if(allInStart()) return false;
-                for (int i = 1; i <= 6; i++) {
+                if (allInStart()) return false;
+
+                // Try every pair of pawns: (p1, p2)
+                for (Pawn p1 : p.getPawns()) {
+                    int max1 = maxMove(p1);
+                    if (max1 == 0) continue;
+
                     for (Pawn p2 : p.getPawns()) {
-                        if (p2 != pawn) {
-                            Pawn testP2 = new Pawn(p2);
-                            if (MoveForward(testPawn, i, testBoard) &&
-                                MoveForward(testP2, 7 - i, testBoard)) return true;
+                        if (p1 == p2) continue;
+
+                        int max2 = maxMove(p2);
+                        if (max2 == 0) continue;
+
+                        // Try all splits i + j = 7
+                        for (int i = 1; i <= 6; i++) {
+                            int j = 7 - i;
+
+                            if (i <= max1 && j <= max2) return true;
                         }
                     }
                 }
-                break;
+
+    return false;
 
             case 10:
                 if(!anyInMain(p)) return false;
@@ -517,10 +529,10 @@ public class Game {
                 break;
 
             case 11:
-                for (Player ply : getPlayers()){
-                    if (anyInMain(ply)) return true;
-                    else return false;
-                }
+                if(!anyInMain(p)) return false;
+                else 
+                    return 11 >= maxMove(testPawn);
+                
                 // if (MoveForward(testPawn, 11, testBoard)) return true;
 
                 // System.out.print("seeing if this is ever reached");
