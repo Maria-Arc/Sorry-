@@ -13,6 +13,14 @@ public class Pawn {
             owner = o;
             pawnId = i;
         }
+        
+        public Pawn(Pawn other) {
+            this.owner = other.owner;  // same Player reference is fine
+            this.pawnId = other.pawnId;
+            this.state = other.state;
+            this.index = other.index;
+        }
+
 
         public State getState(){ return state; }
 

@@ -23,6 +23,28 @@ public class Board {
         }
    
     }
+
+   public Board(Board b) {
+        int numPlayers = b.homePath.length;
+        outerPath = new Pawn[60];
+        homePath = new Pawn[numPlayers][6];
+
+        // copy outer path pawns
+        for (int i = 0; i < 60; i++) {
+            if (b.outerPath[i] != null)
+                outerPath[i] = new Pawn(b.outerPath[i]);
+        }
+
+        // copy home paths
+        for (int i = 0; i < numPlayers; i++) {
+            for (int j = 0; j < 6; j++) {
+                if (b.homePath[i][j] != null)
+                    homePath[i][j] = new Pawn(b.homePath[i][j]);
+            }
+        }
+    }
+
+
     
     
     public boolean movePawnOuter(Pawn p, int index)

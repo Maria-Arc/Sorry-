@@ -11,7 +11,6 @@ public class Game2 {
     private int numberPlayers;
     private HashMap<Integer, Player.Color>slide = new HashMap<>();   
 
-    //TODO: make the card backround the player
     
     // For card choices
     public enum CardChoice {
@@ -359,7 +358,7 @@ public class Game2 {
     
     // Move forward on main path
     private boolean handleMoveForward(Pawn pawn, int moves) {
-        if (pawn.getState() != Pawn.State.MAIN) {
+       if (pawn.getState() != Pawn.State.MAIN) {
             return false;
         }
         

@@ -10,7 +10,7 @@ public class SorryGameGUI extends JFrame
 {
     private GamePanel gamePanel;
     private ControlPanel controlPanel;
-    private Game2 game;
+    private Game game;
     private int numPlayers;
     private int numPawns;
     
@@ -31,7 +31,7 @@ public class SorryGameGUI extends JFrame
         {
             System.exit(0);
         }
-        game = new Game2(numPlayers, numPawns);
+        game = new Game(numPlayers, numPawns);
         
         //we gonna set up two main panels. The first one is the board on the left. the second one is the controls on the right
         gamePanel= new GamePanel(game, numPlayers);
@@ -93,7 +93,7 @@ public class SorryGameGUI extends JFrame
 //this will draw the game board and handle pawn selection
 class GamePanel extends JPanel 
 {
-    private Game2 game;
+    private Game game;
     private BufferedImage boardImage;   //board picture
     private static int  boardSize = 800;
     private static int pawnSize  = 20;
@@ -120,7 +120,7 @@ class GamePanel extends JPanel
     
     private Pawn selectedPawn = null;   //currently selected pawn
     
-    public GamePanel(Game2 game, int numPlayers) 
+    public GamePanel(Game game, int numPlayers) 
     {
         colors.put(Player.Color.RED, new Color(200, 50, 30));      // Red
         colors.put(Player.Color.BLUE, new Color(60, 130, 220)); 
@@ -302,7 +302,7 @@ class GamePanel extends JPanel
             }
         }
         //allow clicking on an active opp pawn for swap
-        for(Player player : game.getActivePlayers())
+        for(Player player : game.getPlayers())
         {
             if(player != currPlayer)
             {
@@ -451,7 +451,7 @@ class GamePanel extends JPanel
 //control paenl on right side w/ btns and game log
 class ControlPanel extends JPanel 
 {
-    private Game2 game;
+    private Game game;
     private GamePanel gamePanel;
     private JButton drawCardBtn;
     private JButton movePawnBtn;
@@ -462,13 +462,13 @@ class ControlPanel extends JPanel
     private JPanel cardBox;
     
     private boolean waitingForOppSwap = false;
-    private Pawn myPawnSwap = null;     //TODO: 
+    private Pawn myPawnSwap = null;     
 
     private boolean isMoveMade = false;
     
 
     //panel with buttons and game log on right side  
-    public ControlPanel(Game2 game, GamePanel gamePanel) 
+    public ControlPanel(Game game, GamePanel gamePanel) 
     {
         this.game = game;
         this.gamePanel = gamePanel;
@@ -613,8 +613,21 @@ class ControlPanel extends JPanel
                 cardBox.setBackground(new Color(98, 155, 237));
                 break;
         }
-        cardBox.repaint();
+                           //check for valid move TODO: function 
+            if (!game.canMove(game.getCurrentPlayer()) )
+            {
+                log.append("No valid moves possible. You can end turn.\n");
+                movePawnBtn.setEnabled(false);
+                endTurnBtn.setEnabled(true);
+            }
+            else{
+                movePawnBtn.setEnabled(true);
+                endTurnBtn.setEnabled(false);
+            }
+            
         log.append(game.getCurrentPlayer().getColor() + " drew: " + text + "\n");
+ 
+         cardBox.repaint();
         
 
         //check if player can from from START. can only leave with 1, 2, or SORRY (0)
@@ -639,6 +652,7 @@ class ControlPanel extends JPanel
         drawCardBtn.setEnabled(false);
         movePawnBtn.setEnabled(true);
         endTurnBtn.setEnabled(true);
+
     }
     
     //pawn move click
@@ -664,11 +678,7 @@ class ControlPanel extends JPanel
                 return;
             }
 
-            /*//check for valid move TODO: function 
-            {
-                log.append("No valid moves possible. You can end turn.\n");
-                endTurnBtn.setEnabled(true);
-            }*/
+        
         }
         boolean success= game.movePawn(pawn);
         
@@ -694,7 +704,7 @@ class ControlPanel extends JPanel
                 //show win popup
                 JOptionPane.showMessageDialog(this, winner.getColor() + " wins!");
             }
-            //movePawnBtn.setEnabled(false);
+           // movePawnBtn.setEnabled(false);
         } 
         else 
         {
@@ -702,23 +712,24 @@ class ControlPanel extends JPanel
 
             //show error popup
             JOptionPane.showMessageDialog(this, "cannot move that pawn with this card.");
+            movePawnBtn.setEnabled(true);
         }
-        movePawnBtn.setEnabled(false);
+        
     }
 
 
     private void handleCardChoice(Pawn pawn)
     {
-        Game2.CardChoice choice = game.getPendingChoice();
+        int choice = game.getPendingChoice();
         switch (choice)
         {
-            case SORRY:
+            case 0:
                 handleSorryChoice(pawn);
                 break;
-            case TEN_FORWARD_OR_BACK:
+            case 4:
                 handleTenChoice(pawn);
                 break;
-            case ELEVEN_FORWARD_OR_SWAP:
+            case 5:
                 handleElevenChoice(pawn);
                 break;
             default:
@@ -814,12 +825,13 @@ class ControlPanel extends JPanel
         boolean success;
         if(choice == 0)
         {
-            success = game.moveForwardTen(pawn);
+            success = game.card10(pawn, true);
         }    
         else
         {
-            success = game.moveBackwardOne(pawn);
-        }
+            success = game.card10(pawn, false);
+        }    
+        
         
         if (success) 
         {
@@ -854,7 +866,7 @@ class ControlPanel extends JPanel
                 
             if (choice == 0) 
             {
-                if (game.moveForwardEleven(pawn)) 
+                if (game.card11(pawn, true, null)) 
                 {
                     log.append("Pawn moved forward 11!\n");
                     gamePanel.refresh();
@@ -868,7 +880,7 @@ class ControlPanel extends JPanel
                 gamePanel.setOppClickListener(opponentPawn -> {
                     if (opponentPawn.getOwner() != game.getCurrentPlayer()) 
                     {
-                        if (game.swapWithOpponent(myPawnSwap, opponentPawn)) 
+                        if (game.swap(myPawnSwap, opponentPawn)) 
                         {
                             log.append("Swapped with opp!\n");
                             gamePanel.refresh();
@@ -891,7 +903,7 @@ class ControlPanel extends JPanel
         else 
         {
             //No opponent just move forward
-            if (game.moveForwardEleven(pawn)) 
+            if (game.card11(pawn, true, null)) 
             {
                 log.append("Pawn moved forward 11!\n");
                 gamePanel.refresh();
@@ -931,7 +943,8 @@ class ControlPanel extends JPanel
         drawCardBtn.setEnabled(true);
         movePawnBtn.setEnabled(false);
         endTurnBtn.setEnabled(false);
-        
+
+       
         //clear selection
         gamePanel.setSelectedPawn(null);
         gamePanel.refresh();
