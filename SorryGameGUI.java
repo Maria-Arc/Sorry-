@@ -690,14 +690,7 @@ class ControlPanel extends JPanel
             endTurnBtn.setEnabled(true);
             
             //check for win
-            if (game.isGameOver()) 
-            {
-                Player winner = game.getWinner();
-                log.append(winner.getColor() + " WINS\n");
-
-                //show win popup
-                JOptionPane.showMessageDialog(this, winner.getColor() + " wins!");
-            }
+          
            // movePawnBtn.setEnabled(false);
         } 
         else 
@@ -757,6 +750,7 @@ class ControlPanel extends JPanel
                 log.append("Moved 7 spaces\n");
                 gamePanel.refresh();
                 movePawnBtn.setEnabled(false);
+                endTurnBtn.setEnabled(true);
             }
             else
             {
@@ -789,6 +783,7 @@ class ControlPanel extends JPanel
                     log.append("Moved "+firstMove+ " and "+secondMove +"\n");
                     gamePanel.refresh();
                     movePawnBtn.setEnabled(false);
+                    endTurnBtn.setEnabled(true);
                 }
                 else
                 {
@@ -952,6 +947,7 @@ class ControlPanel extends JPanel
                     log.append("Pawn moved forward 11!\n");
                     gamePanel.refresh();
                     movePawnBtn.setEnabled(false);
+                    endTurnBtn.setEnabled(true);
                 }
                 else 
                 {
@@ -1040,6 +1036,19 @@ class ControlPanel extends JPanel
        
         //clear selection
         gamePanel.setSelectedPawn(null);
+         if (game.isGameOver()) 
+            {
+                Player winner = game.getWinner();
+                log.append(winner.getColor() + " WINS\n");
+
+                //show win popup
+                JOptionPane.showMessageDialog(this, winner.getColor() + " wins!");
+            }
+            
+
+         
         gamePanel.refresh();
+
     }
+
 }
