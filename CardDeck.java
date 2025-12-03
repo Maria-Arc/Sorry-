@@ -60,7 +60,7 @@ public class CardDeck {
                     rule = "Move forward 10 or backward 1";
                     break;
                 case 11:
-                    rule = "Move forward 11";
+                    rule = "Move forward 11, or swap with with opponents pawn";
                     break;
                 case 12:
                     rule = "Move forward 12";

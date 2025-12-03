@@ -613,17 +613,19 @@ class ControlPanel extends JPanel
                 cardBox.setBackground(new Color(98, 155, 237));
                 break;
         }
-            if (!game.canMove(game.getCurrentPlayer()) )
-            {
-                log.append("No valid moves possible. You can end turn.\n");
-                // movePawnBtn.setEnabled(false);
-                // endTurnBtn.setEnabled(true);
-            }
-            else{
-                // movePawnBtn.setEnabled(true);
-                // endTurnBtn.setEnabled(false);
-            }
-            
+            // if (!game.canMove(game.getCurrentPlayer()) )
+            // {
+            //     log.append("No valid moves possible. You can end turn.\n");
+            //     movePawnBtn.setEnabled(false);
+            //     endTurnBtn.setEnabled(true);
+            // }
+            // else{
+            //     movePawnBtn.setEnabled(true);
+            //     endTurnBtn.setEnabled(false);
+            // }
+        
+         movePawnBtn.setEnabled(true);
+        endTurnBtn.setEnabled(true);
         log.append(game.getCurrentPlayer().getColor() + " drew: " + text + "\n");
  
          cardBox.repaint();
@@ -649,8 +651,8 @@ class ControlPanel extends JPanel
 
         isMoveMade = true;
         drawCardBtn.setEnabled(false);
-        movePawnBtn.setEnabled(true);
-        endTurnBtn.setEnabled(true);
+        // movePawnBtn.setEnabled(true);
+        // endTurnBtn.setEnabled(true);
 
     }
     
@@ -692,7 +694,8 @@ class ControlPanel extends JPanel
             log.append("Pawn moved\n");
             gamePanel.refresh();
             isMoveMade = true;
-            //movePawnBtn.setEnabled(false);
+            movePawnBtn.setEnabled(false);
+            endTurnBtn.setEnabled(true);
             
             //check for win
             if (game.isGameOver()) 
@@ -872,6 +875,7 @@ class ControlPanel extends JPanel
                         //}
                         if (game.swap(pawn, opponentPawn)){
                             log.append("Moved from START and bumped opponent\n");
+                            endTurnBtn.setEnabled(true);
                             gamePanel.refresh();
                             movePawnBtn.setEnabled(false);
                             gamePanel.setOppClickListener(null);
@@ -919,6 +923,7 @@ class ControlPanel extends JPanel
             log.append("Pawn moved!\n");
             gamePanel.refresh();
             movePawnBtn.setEnabled(false);
+            endTurnBtn.setEnabled(true);
         }
     }
     
@@ -966,6 +971,7 @@ class ControlPanel extends JPanel
                             log.append("Swapped with opp!\n");
                             gamePanel.refresh();
                             movePawnBtn.setEnabled(false);
+                            endTurnBtn.setEnabled(true);
                             gamePanel.setOppClickListener(null);
                             myPawnSwap = null;
                         } 
@@ -989,6 +995,7 @@ class ControlPanel extends JPanel
                 log.append("Pawn moved forward 11!\n");
                 gamePanel.refresh();
                 movePawnBtn.setEnabled(false);
+                endTurnBtn.setEnabled(true);
             }
         }
     }

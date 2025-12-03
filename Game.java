@@ -164,8 +164,9 @@ public class Game {
 
         public boolean card7(Pawn p, Pawn p2, int i){
            if ( MoveForward(p, i)){
+                if ( i != 7){
                 if (MoveForward(p2, 7-i)) return true;
-                else  MoveBackward(p, i);
+                else  MoveBackward(p, i);}
            }
             return false;
         }
@@ -232,7 +233,7 @@ public class Game {
                     if (canSlide(pawn, targetIndex)) {
                         int slideLen = slideLength(targetIndex);
                         int finalIndex = (targetIndex + slideLen) % 60;
-                        for (int i = targetIndex; i < targetIndex + slideLen; i++)
+                        for (int i = targetIndex; i <= (targetIndex + slideLen) % 60; i++)
                             board.movePawnOuter(pawn, i);
                         return true;
                     }
@@ -494,7 +495,7 @@ public class Game {
                 // Only return true if MoveForward actually succeeds
                
                 if(!anyInMain(p)) return false;
-                else return currentCardValue <= maxMove(pawn);
+                else if (currentCardValue <= maxMove(pawn)) return true;
 
             case 4:
                 if(allInStart()) return false;
@@ -523,7 +524,7 @@ public class Game {
                     }
                 }
 
-    return false;
+            return false;
 
             case 10:
                 if(!anyInMain(p)) return false;
@@ -534,22 +535,7 @@ public class Game {
                 if(!anyInMain(p)) return false;
                 else 
                     return 11 >= maxMove(testPawn);
-                
-                // if (MoveForward(testPawn, 11, testBoard)) return true;
-
-                // System.out.print("seeing if this is ever reached");
-
-                // // Check if swap with any opponent pawn is possible
-                // for (Player other : players) {
-                //     if (other != p) {
-                //         for (Pawn op : other.getPawns()) {
-                //             Pawn testOp = new Pawn(op);
-                //             if (swap(testPawn, testOp, testBoard)) return true;
-                //         }
-                //     }
-                // }
-                // break;
-
+              
             case 0: // Sorry card
                 for (Player other : players) {
                     if (other != p) {
