@@ -916,6 +916,10 @@ class ControlPanel extends JPanel
             movePawnBtn.setEnabled(false);
             endTurnBtn.setEnabled(true);
         }
+        else
+        {
+            log.append("Invalid move\n");
+        }
     }
     
     private void handleElevenChoice(Pawn pawn) 
