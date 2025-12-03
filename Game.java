@@ -238,7 +238,7 @@ public class Game {
                     if (homeInd > 5) return false;
                     board.clearOuterPath(pawn);
                     board.movePawnInner(pawn, homeInd);
-                    if (spacesToHome == 5)
+                    if (homeInd == 5)
                         pawn.setState(Pawn.State.FINISHED);
                     pawn.setIndex(homeInd);
                     return true;
