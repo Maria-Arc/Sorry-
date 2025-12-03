@@ -11,8 +11,8 @@ end without moving if a move is available (although user is prevented from movin
 
 To run the SORRY! game, you compile it and select number of players and pawns.
 To move a pawn you click on it and hit move. To swap a pawn, you click on your desired pawn,
-click move, then click on opponents pawn. For card 7 (which you move 2 pawns) you click on the first pawn, 
-hit move and select amount you want to move, then move second pawn.
+click move, then click on opponents pawn. For card 2, you can only swap from Start, for card 11 you can only swap from Main. For card 7 (which you move 2 pawns) you click on the first pawn, 
+hit move and select amount you want to move, then move second pawn. If only one pawn that is moveable, there is no pop up, instead it will just move the pawn 7. 
 
 Extra features:
 We have added a game log, and the ability to select number of pawns for a shorter game.
