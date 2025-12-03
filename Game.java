@@ -532,7 +532,8 @@ public class Game {
         switch (currentCardValue) {
             case 1:
             case 2:
-                if (anyInHome(p)) 
+                if (!anyInHome(p) && !anyInStart(p) ) return false;
+                else return currentCardValue < maxMove(pawn);
             case 3:
             case 5:
             case 8:

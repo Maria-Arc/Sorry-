@@ -965,7 +965,7 @@ class ControlPanel extends JPanel
                 gamePanel.setOppClickListener(opponentPawn -> {
                     if (opponentPawn.getOwner() != game.getCurrentPlayer()) 
                     {
-                        if (game.swap(myPawnSwap, opponentPawn)) 
+                        if (game.card11(myPawnSwap,false, opponentPawn)) 
                         {
                             log.append("Swapped with opp!\n");
                             gamePanel.refresh();
