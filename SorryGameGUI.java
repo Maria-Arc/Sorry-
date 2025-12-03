@@ -739,7 +739,8 @@ class ControlPanel extends JPanel
     {
         String[] options = {"Move 7", "1 and 6", "2 and 5", "3 and 4", "4 and 3", "5 and 2", "6 and 1"};
         int choice;
-        if (game.TwoInMain(pawn1.getOwner()) || game.anyInHome(pawn1.getOwner()))
+        //if (game.TwoInMain(pawn1.getOwner()) || (game.anyInMain(pawn1.getOwner()) && game.anyInHome(pawn1.getOwner())))
+        if (game.canMove7(pawn1.getOwner()))
          choice = JOptionPane.showOptionDialog(this, "How do you want to use 7?", "Card 7", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
 
         else choice = 0;
@@ -792,13 +793,14 @@ class ControlPanel extends JPanel
                 else
                 {
                     log.append("Invalid move\n");
+                     movePawnBtn.setEnabled(true);
                 }
                 gamePanel.setOppClickListener(null);
 
             }
             
         });
-        movePawnBtn.setEnabled(false);
+       
     }
     }
     
@@ -946,6 +948,10 @@ class ControlPanel extends JPanel
                     log.append("Pawn moved forward 11!\n");
                     gamePanel.refresh();
                     movePawnBtn.setEnabled(false);
+                }
+                else 
+                {
+                    log.append("Invalid Move\n");
                 }
             } 
             else if (choice == 1) 

@@ -405,11 +405,29 @@ public class Game {
         
         board.movePawnOuter(myPawn, theirPos);
         board.movePawnOuter(opPawn, myPos);
-        }
         
         needsChoice = -1;
 
-        return true;
+        if (canSlide(myPawn, theirPos)) {
+                        int slideLen = slideLength(theirPos);
+                        int finalIndex = (theirPos + slideLen) % 60;
+                        for (int i = theirPos; i < theirPos + slideLen; i++)
+                        board.movePawnOuter(myPawn, finalIndex);
+                        return true;
+                    }
+        
+        if (canSlide(opPawn, myPos)) {
+                        int slideLen = slideLength(myPos);
+                        int finalIndex = (myPos + slideLen) % 60;
+                        for (int i = myPos; i < myPos + slideLen; i++)
+                        board.movePawnOuter(opPawn, finalIndex);
+                        return true;
+                    }
+                    else return true;
+    
+    
+
+        }
     }
 
      public boolean swap(Pawn myPawn, Pawn opPawn, Board b){
@@ -425,7 +443,7 @@ public class Game {
             return false;
         }
 
-        // Swap positions
+        // Swap positi-ons
         int myPos = myPawn.getIndex();
         int theirPos = opPawn.getIndex();
         
@@ -572,7 +590,7 @@ public class Game {
         return all;
     }
 
-    private boolean anyInMain(Player p){
+    public boolean anyInMain(Player p){
         boolean all = false;
         for(Pawn paw : p.getPawns())
         {
@@ -627,6 +645,16 @@ public class Game {
 
         }
 
+    }
+
+    public boolean canMove7(Player p){
+        int moves =0;
+        int playerAbleToMove = 0;
+        for (Pawn pawn: p.getPawns()){
+            moves += maxMove(pawn);
+            if (maxMove(pawn) > 0) playerAbleToMove++;
+        }
+        return (moves >=7 && playerAbleToMove>=2) ;
     }
 
 
