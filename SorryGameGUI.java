@@ -746,8 +746,11 @@ class ControlPanel extends JPanel
     private void handleSeven(Pawn pawn1)
     {
         String[] options = {"Move 7", "1 and 6", "2 and 5", "3 and 4", "4 and 3", "5 and 2", "6 and 1"};
-        int choice = JOptionPane.showOptionDialog(this, "How do you want to use 7?", "Card 7", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+        int choice;
+        if (game.TwoInMain(pawn1.getOwner()))
+         choice = JOptionPane.showOptionDialog(this, "How do you want to use 7?", "Card 7", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
 
+        else choice = 0;
         if(choice == -1)
         {
             return;
@@ -766,7 +769,6 @@ class ControlPanel extends JPanel
             {
                 log.append("Invalid move\n");
             }
-            movePawnBtn.setEnabled(false);
             return;
         }
         else{

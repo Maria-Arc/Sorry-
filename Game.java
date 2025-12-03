@@ -584,6 +584,18 @@ public class Game {
         }
         return all;
     }
+        public boolean TwoInMain(Player p){
+        int all = 0;
+        for(Pawn paw : p.getPawns())
+        {
+            if(paw.getState() == Pawn.State.MAIN)
+            {
+                all++;
+                
+            }
+        }
+        return all >=2;
+    }
 
     private int maxMove(Pawn p){
         if (p.getState() == Pawn.State.HOME){
