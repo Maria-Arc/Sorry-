@@ -185,7 +185,7 @@ public class Game {
             if (forward)
                 return MoveForward(p,11);
             else
-                if (p.getState() != Pawn.State.START) {
+                if (p.getState() != Pawn.State.MAIN) {
                     return false;
                 }
                 return swap(p, p2);
@@ -549,25 +549,9 @@ public class Game {
             case 7:
                 if (allInStart()) return false;
 
-                // Try every pair of pawns: (p1, p2)
-                for (Pawn p1 : p.getPawns()) {
-                    int max1 = maxMove(p1);
-                    if (max1 == 0) continue;
-
-                    for (Pawn p2 : p.getPawns()) {
-                        if (p1 == p2) continue;
-
-                        int max2 = maxMove(p2);
-                        if (max2 == 0) continue;
-
-                        // Try all splits i + j = 7
-                        for (int i = 1; i <= 6; i++) {
-                            int j = 7 - i;
-
-                            if (i <= max1 && j <= max2) return true;
-                        }
-                    }
-                }
+                 if (canMove7(p)) return true;
+                        
+                    
 
             return false;
 
@@ -579,7 +563,7 @@ public class Game {
             case 11:
                 if(!anyInMain(p)) return false;
                 else 
-                    return 11 >= maxMove(testPawn);
+                    return 11 <= maxMove(testPawn);
               
             case 0: // Sorry card
                 for (Player other : players) {

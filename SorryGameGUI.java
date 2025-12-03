@@ -605,19 +605,19 @@ class ControlPanel extends JPanel
                 cardBox.setBackground(new Color(98, 155, 237));
                 break;
         }
-            // if (!game.canMove(game.getCurrentPlayer()) )
-            // {
-            //     log.append("No valid moves possible. You can end turn.\n");
-            //     movePawnBtn.setEnabled(false);
-            //     endTurnBtn.setEnabled(true);
-            // }
-            // else{
-            //     movePawnBtn.setEnabled(true);
-            //     endTurnBtn.setEnabled(false);
-            // }
+            if (!game.canMove(game.getCurrentPlayer()) )
+            {
+                log.append("No valid moves possible. You can end turn.\n");
+                movePawnBtn.setEnabled(false);
+                endTurnBtn.setEnabled(true);
+            }
+            else{
+                movePawnBtn.setEnabled(true);
+                endTurnBtn.setEnabled(false);
+            }
         
-         movePawnBtn.setEnabled(true);
-        endTurnBtn.setEnabled(true);
+        //  movePawnBtn.setEnabled(true);
+        // endTurnBtn.setEnabled(true);
         log.append(game.getCurrentPlayer().getColor() + " drew: " + text + "\n");
  
          cardBox.repaint();
