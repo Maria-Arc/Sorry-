@@ -584,7 +584,19 @@ public class Game {
         }
         return all;
     }
-        public boolean TwoInMain(Player p){
+     public boolean anyInHome(Player p){
+        boolean all = false;
+        for(Pawn paw : p.getPawns())
+        {
+            if(paw.getState() == Pawn.State.HOME)
+            {
+                all = true;
+                
+            }
+        }
+        return all;
+    }
+    public boolean TwoInMain(Player p){
         int all = 0;
         for(Pawn paw : p.getPawns())
         {
