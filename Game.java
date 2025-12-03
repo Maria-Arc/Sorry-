@@ -211,7 +211,7 @@ public class Game {
 
                 int spacesToHome = (homeEntrance-index+60) %60;
           
-                if (spacesToHome == 0){
+                if (spacesToHome == 0 && num < 6){
                     if (num == 6)
                         pawn.setState(Pawn.State.FINISHED);
                     pawn.setIndex(num-1);
@@ -540,7 +540,7 @@ public class Game {
                 // Only return true if MoveForward actually succeeds
                
                 if(!anyInMain(p)) return false;
-                else if (currentCardValue <= maxMove(pawn)) return true;
+                else  return true;
 
             case 4:
                 if(allInStart()) return false;
