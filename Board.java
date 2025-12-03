@@ -8,6 +8,11 @@ public class Board {
         // okay so how this works is that its and array of [playerId][home board slot]
     
 
+    public void clearOuterPath(Pawn p){
+        int index = p.getIndex();
+        outerPath[index] = null;
+        p.setIndex(-1);
+    }
 
     public Board(int numPlayers){
         for (int i = 0; i < 60; i++){
