@@ -777,11 +777,10 @@ class ControlPanel extends JPanel
             }
             return;
         }
-
+        else{
         int firstMove = choice;
         int secondMove = 7 - firstMove;
 
-        if (secondMove > 0){
 
         log.append("Click second pawn to move "+secondMove +"spaces\n");
 
