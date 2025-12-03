@@ -386,19 +386,11 @@ class GamePanel extends JPanel
         {
             Color color =colors.get(player.getColor()); //get this player's color
            
-               // color = new Color(color.getRed(), color.getGreen(), color.getBlue(), 100); //will sort of fade colors
-        
             for (Pawn pawn : player.getPawns()) //draw each of this players pawns
             {
                 Point pos = getPawnPos(pawn);
                 if (pos != null) 
                 {
-                    //draw shadow so it is easier to identify
-                    // if(isActive)
-                    // {
-                    //     g2.setColor(color.darker());
-                    // }
-                    // else
                     {
                         g2.setColor(new Color (0, 0, 0,5));
                     }
@@ -496,7 +488,7 @@ class ControlPanel extends JPanel
         cardBox = new JPanel();
         //cardBox.setLayout(new BorderLayout());
         cardBox.setMaximumSize(new Dimension(250, 120));
-        cardBox.setBackground(new Color(246, 82, 80));
+        cardBox.setBackground(new Color(247, 137, 140));
         
         currCardLabel = new JLabel("Draw a card");
         currCardLabel.setFont(new Font("Arial", Font.BOLD, 42));
