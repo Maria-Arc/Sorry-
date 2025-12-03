@@ -756,15 +756,6 @@ class ControlPanel extends JPanel
         if(choice == 0)
         {
             Pawn tempPawn = null;
-            for(Pawn p : game.getCurrentPlayer().getPawns())
-            {
-                if(p != pawn1)
-                {
-                    tempPawn = p;
-                    break;
-                }
-            }
-
             if(game.card7(pawn1, tempPawn, 7))
             {
                 log.append("Moved 7 spaces\n");
@@ -775,6 +766,7 @@ class ControlPanel extends JPanel
             {
                 log.append("Invalid move\n");
             }
+            movePawnBtn.setEnabled(false);
             return;
         }
         else{
@@ -812,6 +804,7 @@ class ControlPanel extends JPanel
             }
             
         });
+        movePawnBtn.setEnabled(false);
     }
     }
     

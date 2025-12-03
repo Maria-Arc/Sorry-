@@ -166,7 +166,8 @@ public class Game {
            if ( MoveForward(p, i)){
                 if ( i != 7){
                 if (MoveForward(p2, 7-i)) return true;
-                else  MoveBackward(p, i);}
+                else { MoveBackward(p, i); return false;}}
+                return true;
            }
             return false;
         }
