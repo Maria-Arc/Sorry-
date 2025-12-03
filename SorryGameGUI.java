@@ -973,6 +973,8 @@ class ControlPanel extends JPanel
                             endTurnBtn.setEnabled(true);
                             gamePanel.setOppClickListener(null);
                             myPawnSwap = null;
+                            movePawnBtn.setEnabled(false);
+                            endTurnBtn.setEnabled(true);
                         } 
                         else 
                         {

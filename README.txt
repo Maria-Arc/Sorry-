@@ -1,3 +1,7 @@
+Maria Arcis and Robert Began
+
+
+
 Rules:
 1.) You can go on any slide that is not your own color,
 you will bump all pawns of opponents

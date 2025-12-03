@@ -532,7 +532,7 @@ public class Game {
         switch (currentCardValue) {
             case 1:
             case 2:
-                return true; 
+                if (anyInHome(p)) 
             case 3:
             case 5:
             case 8:
@@ -566,6 +566,7 @@ public class Game {
                     return 11 <= maxMove(testPawn);
               
             case 0: // Sorry card
+                if (!anyInStart(p)) return false;
                 for (Player other : players) {
                     if (other != p) {
                         if (anyInMain(other)) return true;
@@ -598,6 +599,18 @@ public class Game {
         for(Pawn paw : p.getPawns())
         {
             if(paw.getState() == Pawn.State.MAIN)
+            {
+                all = true;
+                
+            }
+        }
+        return all;
+    }
+    public boolean anyInStart(Player p){
+        boolean all = false;
+        for(Pawn paw : p.getPawns())
+        {
+            if(paw.getState() == Pawn.State.START)
             {
                 all = true;
                 
