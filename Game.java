@@ -533,6 +533,7 @@ public class Game {
             case 1:
             case 2:
                 if (!anyInHome(p) && !anyInStart(p) ) return false;
+                else if (anyInHome(p)) return true;
                 else return currentCardValue < maxMove(pawn);
             case 3:
             case 5:
