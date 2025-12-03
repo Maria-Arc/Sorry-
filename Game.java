@@ -232,7 +232,6 @@ public class Game {
                     // Check for slide
                     if (canSlide(pawn, targetIndex)) {
                         int slideLen = slideLength(targetIndex);
-                        int finalIndex = (targetIndex + slideLen) % 60;
                         for (int i = targetIndex; i <= (targetIndex + slideLen) % 60; i++)
                             board.movePawnOuter(pawn, i);
                         return true;
@@ -320,7 +319,15 @@ public class Game {
             int currentIndex = pawn.getIndex();
             int targetIndex = (currentIndex - num + 60) % 60;
             board.movePawnOuter(pawn, targetIndex);
-            return true;
+
+            if (canSlide(pawn, targetIndex)) {
+                        int slideLen = slideLength(targetIndex);
+                        for (int i = targetIndex; i <= (targetIndex + slideLen) % 60; i++)
+                            board.movePawnOuter(pawn, i);
+                        return true;
+                    }
+                    else return true;
+
         }
 
         private boolean MoveBackward(Pawn pawn, int num, Board b){
