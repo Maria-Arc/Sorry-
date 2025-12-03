@@ -196,6 +196,7 @@ public class Game {
 
             if (pawn.getState() == Pawn.State.HOME){
                 if (index + num < 6){
+                    pawn.setIndex(index+num);
                     board.movePawnInner(pawn, index + num);
                     if (index + num == 5)
                         pawn.setState(Pawn.State.FINISHED);
@@ -210,11 +211,19 @@ public class Game {
 
                 int spacesToHome = (homeEntrance-index+60) %60;
           
-                if (num > spacesToHome + 5) 
+                if (spacesToHome == 0){
+                    if (num == 6)
+                        pawn.setState(Pawn.State.FINISHED);
+                    pawn.setIndex(num-1);
+                    board.movePawnInner(pawn, num-1);
+                    return true;
+                }
+                else if (num > spacesToHome + 5) 
                     return false;
                 else if (spacesToHome == num)
                 {
-                     board.movePawnOuter(pawn, targetIndex);
+                    board.movePawnOuter(pawn, targetIndex);
+                    pawn.setIndex(targetIndex);
                     return true;
                 }
                 else if (spacesToHome < num){
@@ -224,6 +233,7 @@ public class Game {
                     board.movePawnInner(pawn, homeInd);
                     if (spacesToHome == 5)
                         pawn.setState(Pawn.State.FINISHED);
+                    pawn.setIndex(homeInd);
                     return true;
                 } 
                 else {
@@ -426,8 +436,9 @@ public class Game {
                     else return true;
     
     
-
+            
         }
+        return true;
     }
 
      public boolean swap(Pawn myPawn, Pawn opPawn, Board b){
