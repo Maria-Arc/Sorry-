@@ -781,6 +781,8 @@ class ControlPanel extends JPanel
         int firstMove = choice;
         int secondMove = 7 - firstMove;
 
+        if (secondMove > 0){
+
         log.append("Click second pawn to move "+secondMove +"spaces\n");
 
         gamePanel.setOppClickListener(new GamePanel.OppClickListener() {
@@ -811,6 +813,7 @@ class ControlPanel extends JPanel
             }
             
         });
+    }
     }
     
     private void handleSorryChoice(Pawn pawn)
