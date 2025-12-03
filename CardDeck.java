@@ -39,7 +39,7 @@ public class CardDeck {
                     rule = "Move from Start or move forward 1";
                     break;
                 case 2:
-                    rule = "Move from Start or move forward 2";
+                    rule = "Move from Start or move forward 2. Draw again";
                     break;
                 case 3:
                     rule = "Move forward 3";
