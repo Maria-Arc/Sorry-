@@ -849,22 +849,6 @@ class ControlPanel extends JPanel
                 {
                     if(opponentPawn.getOwner() != game.getCurrentPlayer() && opponentPawn.getState() == Pawn.State.MAIN)
                     {
-                        // //get opponent pos
-                        // int targetPos = opponentPawn.getIndex();
-
-                        // //send opponent back to start
-                        // opponentPawn.setState(Pawn.State.START);
-                        // opponentPawn.setIndex(-1);
-
-                        // //move pawn to their pos
-                        // if(game.getBoard().movePawnOuter(myPawnSwap, targetPos))
-                        // {
-                        //     log.append("Moved from START and bumped opponent\n");
-                        //     gamePanel.refresh();
-                        //     movePawnBtn.setEnabled(false);
-                        //     gamePanel.setOppClickListener(null);
-                        //     myPawnSwap = null;
-                        //}
                         if (game.swap(pawn, opponentPawn)){
                             log.append("Moved from START and bumped opponent\n");
                             endTurnBtn.setEnabled(true);

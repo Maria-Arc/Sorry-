@@ -287,8 +287,7 @@ public class Game {
                 else if (spacesToHome + 6 == num){
                     board.clearOuterPath(pawn);
                     board.movePawnInner(pawn, 5);
-                    if (spacesToHome == 5)
-                        pawn.setState(Pawn.State.FINISHED);
+                    pawn.setState(Pawn.State.FINISHED);
                     pawn.setIndex(5);
                     return true;
                 }
@@ -493,7 +492,11 @@ public class Game {
             int theirPos = opPawn.getIndex();
             
             board.movePawnOuter(myPawn, theirPos);
-            //board.movePawnHome(opPawn);
+            if (canSlide(myPawn, theirPos)) {
+                        int slideLen = slideLength(theirPos);
+                        for (int i = theirPos; i < theirPos + slideLen + 1; i++)
+                        board.movePawnOuter(myPawn, i);
+                    }
         }
         else if (myPawn.getState() == Pawn.State.MAIN){
 
