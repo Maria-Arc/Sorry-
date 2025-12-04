@@ -102,10 +102,12 @@ class GamePanel extends JPanel
     private Point[] outerPath;  //60 spaces sorrounding the board
     private Point[][] homePath; //PLayers safe zone that is 6 spaces
     private Point[][] startAreas;   //pawn starting point
-
-    //this will map each player color t oactual RGB color valus
+    
+      //this will map each player color t oactual RGB color valus
     private final Map<Player.Color, Color> colors = new HashMap<>();
    
+    
+    
     private Pawn selectedPawn = null;   //currently selected pawn
     
     public GamePanel(Game game, int numPlayers) 
@@ -188,8 +190,9 @@ class GamePanel extends JPanel
 
         Point temp = new Point(outerPath[17].getLocation());
         //home paths -> the safe spaces leading to home (6 spaces)
+        //reds home path horizontal going right
 
-        //blues home path
+        //wrong this is blues home path
         for (int i = 0;i <6; i++) 
         {
             //homePath[0][i] = new Point(150 + i * 40, 650);
@@ -200,7 +203,8 @@ class GamePanel extends JPanel
                homePath[1][i] = new Point( (int)temp.getX() + (i+1) * 46, (int)temp.getY() );
         }
         
-        //red home path
+        //blues home path, start at 17 and go up
+        //this is actually reds
         temp = new Point(outerPath[2].getLocation());
         for (int i = 0; i < 6; i++) 
         {   if ( i == 5)
@@ -209,7 +213,9 @@ class GamePanel extends JPanel
                  homePath[0][i] = new Point((int) temp.getX() , (int)temp.getY() -46 - i* 46);
         }
         
-        //greens home path
+        //yellows home path horizontal going left
+        //this is green
+
         temp = new Point(outerPath[47].getLocation());
         for (int i = 0; i < 6; i++) 
         {   if ( i == 5)
@@ -218,7 +224,8 @@ class GamePanel extends JPanel
                  homePath[3][i] = new Point((int) temp.getX() -46 - i* 46 , (int)temp.getY());
         }
         
-        //yellows home path start
+        //greens home path start and 47 go down
+        //yellow
         temp = new Point(outerPath[32].getLocation());
         for (int i = 0; i < 6; i++) 
         {   if ( i == 5)
@@ -228,25 +235,26 @@ class GamePanel extends JPanel
         }
         
         //start areas/where the pawns begin
-        //red starts bottom right 
+        //red starts bottom right ---NEEDS WORK
+    
         startAreas[0][0] = new Point(550,670);
         startAreas[0][1] = new Point(580, 670);
         startAreas[0][2] = new Point(550,700);
         startAreas[0][3] = new Point(580,700);
         
-        //blue start bottom left
+        //blue start bottom left ---NEEDS WORK
         startAreas[1][0] = new Point(100,550);
         startAreas[1][1]= new Point(130,550);
         startAreas[1][2]= new Point(100,580);
         startAreas[1][3] = new Point(130, 580);
         
-        //yellow start top left -
+        //yellow start top left --NEEDS WORK
         startAreas[2][0]= new Point(250,95);
         startAreas[2][1]= new Point(220, 95);
         startAreas[2][2]= new Point(250,130);
         startAreas[2][3] = new Point(220, 130);
         
-        //green start top right 
+        //green start top right --NEEDS WORK
         startAreas[3][0] = new Point(670,215);
         startAreas[3][1] = new Point(670,245);
         startAreas[3][2] = new Point(695,215);
@@ -264,7 +272,7 @@ class GamePanel extends JPanel
             if (pawnPos !=null) 
             {
                //calc distance between click and pawn center
-                double distance = click.distance(pawnPos);
+                double distance = click.distance(pawnPos); //distance uses the pythag theorem
                 //if click is within pawn rad
                 if (distance <pawnSize) 
                 {
@@ -337,7 +345,7 @@ class GamePanel extends JPanel
             case MAIN:  //pawn is in main outer path. return its pos in the outer path arr
                 return outerPath[pawn.getIndex()];
             case HOME:  //pawn is in home path
-                return homePath[pawn.getOwner().getId()][pawn.getIndex()];  
+                return homePath[pawn.getOwner().getId()][pawn.getIndex()];  //homePath is [playerid][pos in home path]
             case FINISHED:  //pawn made it back home
                 return homePath[pawn.getOwner().getId()][5];
         }
@@ -360,7 +368,7 @@ class GamePanel extends JPanel
         drawPawns(g2);
     }
       
-    //draw pawns on the board
+    //draw pawns on da board
     private void drawPawns(Graphics2D g2) 
     {
         for (Player player : game.getPlayers()) //loop through each player
@@ -397,7 +405,7 @@ class GamePanel extends JPanel
                     else 
                     {
                         g2.setColor(Color.BLACK);
-                        g2.setStroke(new BasicStroke(2));   //normal line
+                        g2.setStroke(new BasicStroke(2));   //normie line
                     }
                     g2.drawOval(pos.x -pawnSize/2, pos.y - pawnSize/2, pawnSize,pawnSize);
                     g2.setStroke(new BasicStroke(1)); //reset line thickness
@@ -525,6 +533,7 @@ class ControlPanel extends JPanel
         btn.setForeground(Color.WHITE);
         btn.setFocusPainted(false);
         
+        //little tiny hover effect
         btn.addMouseListener(new MouseAdapter() 
         {
             public void mouseEntered(MouseEvent e) 
@@ -667,16 +676,25 @@ class ControlPanel extends JPanel
             gamePanel.refresh();
             isMoveMade = true;
             movePawnBtn.setEnabled(false);
-            if(currCard == 2)
-            {
-                log.append("Drew 2. drawing again\n");
-                drawCard();
-                return;
-            }
             endTurnBtn.setEnabled(true);
+            if(currCard == 2)
+            {    currCardLabel.setText("Draw a card");
+                    //reset buttons
+                    drawCardBtn.setEnabled(true);
+                    movePawnBtn.setEnabled(false);
+                    endTurnBtn.setEnabled(false);
 
-           // movePawnBtn.setEnabled(false);
-        } 
+                    //clear selection
+                    gamePanel.setSelectedPawn(null);
+                    gamePanel.refresh();
+                        
+                       // endTurnBtn.setEnabled(true);
+                        
+                        //check for win
+                    
+                    // movePawnBtn.setEnabled(false);
+                    } 
+                }
         else 
         {
             log.append("Invalid move\n");
@@ -706,7 +724,7 @@ class ControlPanel extends JPanel
             case 5:
                 handleElevenChoice(pawn);
                 break;
-            default:
+            default: 
                 break;
         }
     }
@@ -716,6 +734,7 @@ class ControlPanel extends JPanel
     {
         String[] options = {"Move 7", "1 and 6", "2 and 5", "3 and 4", "4 and 3", "5 and 2", "6 and 1"};
         int choice;
+        //if (game.TwoInMain(pawn1.getOwner()) || (game.anyInMain(pawn1.getOwner()) && game.anyInHome(pawn1.getOwner())))
         if (game.canMove7(pawn1.getOwner()))
          choice = JOptionPane.showOptionDialog(this, "How do you want to use 7?", "Card 7", JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
 
@@ -774,6 +793,7 @@ class ControlPanel extends JPanel
                      movePawnBtn.setEnabled(true);
                 }
                 gamePanel.setOppClickListener(null);
+
             }
             
         });
@@ -969,7 +989,7 @@ class ControlPanel extends JPanel
 
     //handles end turn button
     private void endTurn() 
-    {
+    {   
         game.nextTurn();
         currCard = -1;
         if (game.isGameOver()) 
