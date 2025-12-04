@@ -493,7 +493,7 @@ public class Game {
             board.movePawnOuter(myPawn, theirPos);
             //board.movePawnHome(opPawn);
         }
-        else if (myPawn.getState() == Pawn.State.START){
+        else if (myPawn.getState() == Pawn.State.MAIN){
 
         
         // Swap positions
