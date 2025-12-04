@@ -163,10 +163,17 @@ public class Game {
         }
 
         public boolean card7(Pawn p, Pawn p2, int i, Board b){
+    //        get index of 7 pawn one and instead of moving back just b.moveouter(original index)
+        int originalI= p.getIndex();
            if ( MoveForward(p, i)){
                 if ( i != 7){
                 if (MoveForward(p2, 7-i, b)) return true;
-                else { MoveBackward(p, i, b); return false;}}
+                else {
+                    if (p.getState() == Pawn.State.MAIN) 
+                        board.movePawnOuter(p,originalI); 
+                    else if (p.getState() == Pawn.State.HOME) 
+                        board.movePawnInner(p,originalI); 
+                    return false;}}
                 return true;
            }
             return false;
