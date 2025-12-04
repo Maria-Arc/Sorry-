@@ -184,12 +184,14 @@ public class Game {
         public boolean card11(Pawn p, boolean forward, Pawn p2, Board b){
             if (forward)
                 return MoveForward(p,11, b);
-            else
+            else{
                 if (p.getState() != Pawn.State.MAIN) {
                     return false;
                 }
                 return swap(p, p2, b);
+            }
         }
+
 
          private boolean card1(Pawn pawn){
             if (pawn.getState() == Pawn.State.START) {
@@ -491,7 +493,7 @@ public class Game {
             int theirPos = opPawn.getIndex();
             
             board.movePawnOuter(myPawn, theirPos);
-            board.movePawnHome(opPawn);
+            //board.movePawnHome(opPawn);
         }
         else if (myPawn.getState() == Pawn.State.MAIN){
 
@@ -508,18 +510,18 @@ public class Game {
         if (canSlide(myPawn, theirPos)) {
                         int slideLen = slideLength(theirPos);
                         int finalIndex = (theirPos + slideLen) % 60;
-                        for (int i = theirPos; i < theirPos + slideLen; i++)
+                        for (int i = theirPos; i < theirPos + slideLen + 1; i++)
                         board.movePawnOuter(myPawn, i);
                     }
         
         if (canSlide(opPawn, myPos)) {
                         int slideLen = slideLength(myPos);
                         int finalIndex = (myPos + slideLen) % 60;
-                        for (int i = myPos; i < myPos + slideLen; i++)
+                        for (int i = myPos; i < myPos + slideLen + 1; i++)
                         board.movePawnOuter(opPawn, i);
                         return true;
                     }
-                    else return true;
+        else return true;
     
     
             

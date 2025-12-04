@@ -989,7 +989,7 @@ class ControlPanel extends JPanel
                     }
                 });
             }
-         
+        }
         else 
         {
             //No opponent just move forward
@@ -1006,6 +1006,7 @@ class ControlPanel extends JPanel
             }
         }
     }
+
     //handles end turn button
     private void endTurn() 
     {
