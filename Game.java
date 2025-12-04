@@ -491,8 +491,7 @@ public class Game {
             int theirPos = opPawn.getIndex();
             
             board.movePawnOuter(myPawn, theirPos);
-            board.clearOuterPath(opPawn);
-            //board.movePawnHome(opPawn);
+            board.movePawnHome(opPawn);
         }
         else if (myPawn.getState() == Pawn.State.MAIN){
 

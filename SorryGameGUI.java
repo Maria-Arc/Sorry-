@@ -989,7 +989,7 @@ class ControlPanel extends JPanel
                     }
                 });
             }
-        } 
+         
         else 
         {
             //No opponent just move forward
