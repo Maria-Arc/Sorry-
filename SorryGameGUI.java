@@ -1,3 +1,4 @@
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -36,7 +37,6 @@ public class SorryGameGUI extends JFrame
         //we gonna set up two main panels. The first one is the board on the left. the second one is the controls on the right
         gamePanel= new GamePanel(game, numPlayers);
         controlPanel = new ControlPanel(game, gamePanel);
-        
         add(gamePanel, BorderLayout.CENTER);
         add(controlPanel, BorderLayout.EAST);
         
@@ -687,6 +687,12 @@ class ControlPanel extends JPanel
             gamePanel.refresh();
             isMoveMade = true;
             movePawnBtn.setEnabled(false);
+            if(currCard == 2)
+            {
+                log.append("Drew 2. drawing again\n");
+                drawCard();
+                return;
+            }
             endTurnBtn.setEnabled(true);
             
             //check for win
@@ -1005,6 +1011,32 @@ class ControlPanel extends JPanel
     {
         game.nextTurn();
         currCard = -1;
+        if (game.isGameOver()) 
+        {
+            Player winner = game.getWinner();
+            log.append(winner.getColor() + " WINS\n");
+
+            drawCardBtn.setEnabled(false);
+            movePawnBtn.setEnabled(false);
+            endTurnBtn.setEnabled(false);
+
+            Object[] options = {"Restart Game", "Close"};
+            int choice = JOptionPane.showOptionDialog(this, winner.getColor() + "Wins\n\nWould you like to play again?","Game over", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options, options[0]);
+
+            if(choice == 0)
+            {
+                //play again
+                SwingUtilities.getWindowAncestor(this).dispose();   //finds the main window that contians the right side and closes it
+                new SorryGameGUI();
+            }
+            else
+            {
+                System.exit(0);
+            }
+            return;
+        }
+        // game.nextTurn();
+        // currCard = -1;
         log.append("----------------\n");
         Player currPlayer = game.getCurrentPlayer();
         log.append(currPlayer.getColor() + "'s turn\n");
@@ -1033,20 +1065,8 @@ class ControlPanel extends JPanel
         movePawnBtn.setEnabled(false);
         endTurnBtn.setEnabled(false);
 
-       
         //clear selection
         gamePanel.setSelectedPawn(null);
-         if (game.isGameOver()) 
-            {
-                Player winner = game.getWinner();
-                log.append(winner.getColor() + " WINS\n");
-
-                //show win popup
-                JOptionPane.showMessageDialog(this, winner.getColor() + " wins!");
-            }
-            
-
-         
         gamePanel.refresh();
 
     }
